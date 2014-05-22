@@ -30,7 +30,7 @@ SUPPORTED_NONLOCALES = ['media', 'admin', 'static']
 LANGUAGE_CODE = 'en-us'
 
 # Defines the views served for root URLs.
-ROOT_URLCONF = '{{ project_name }}.urls'
+ROOT_URLCONF = 'uronline.urls'
 
 # Application definition
 INSTALLED_APPS = (
@@ -175,7 +175,7 @@ def custom_show_toolbar(request):
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
-    'SHOW_TOOLBAR_CALLBACK': '{{ project_name }}.settings.base.custom_show_toolbar',
+    'SHOW_TOOLBAR_CALLBACK': 'uronline.settings.base.custom_show_toolbar',
     'HIDE_DJANGO_SQL': True,
     'TAG': 'body',
     'SHOW_TEMPLATE_CONTEXT': True,
@@ -201,7 +201,7 @@ DEBUG_TOOLBAR_CONFIG = {
 FILE_UPLOAD_PERMISSIONS = 0o0664
 
 # The WSGI Application to use for runserver
-WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
+WSGI_APPLICATION = 'uronline.wsgi.application'
 
 # Define your database connections
 DATABASES = {
@@ -273,26 +273,26 @@ INTERNAL_IPS = ('127.0.0.1')
 
 SERVER_EMAIL = "webmaster@example.com"
 DEFAULT_FROM_EMAIL = "webmaster@example.com"
-SYSTEM_EMAIL_PREFIX = "[{{ project_name }}]"
+SYSTEM_EMAIL_PREFIX = "[uronline]"
 
 ## Log settings
 
 LOG_LEVEL = logging.INFO
 HAS_SYSLOG = True
-SYSLOG_TAG = "http_app_{{ project_name }}"  # Make this unique to your project.
+SYSLOG_TAG = "http_app_uronline"  # Make this unique to your project.
 # Remove this configuration variable to use your custom logging configuration
 LOGGING_CONFIG = None
 LOGGING = {
     'version': 1,
     'loggers': {
-        '{{ project_name }}': {
+        'uronline': {
             'level': "DEBUG"
         }
     }
 }
 
 # Common Event Format logging parameters
-#CEF_PRODUCT = '{{ project_name }}'
+#CEF_PRODUCT = 'uronline'
 #CEF_VENDOR = 'Your Company'
 #CEF_VERSION = '0'
 #CEF_DEVICE_VERSION = '0'

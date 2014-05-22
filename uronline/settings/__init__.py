@@ -1,4 +1,4 @@
-""" Settings for {{ project_name }} """
+""" Settings for uronline """
 
 from .base import *
 try:

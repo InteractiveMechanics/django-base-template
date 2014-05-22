@@ -62,7 +62,7 @@ ALLOWED_HOSTS = []
 # SECURITY WARNING: keep the secret key used in production secret!
 # Hardcoded values can leak through source control. Consider loading
 # the secret key from an environment variable or a file instead.
-SECRET_KEY = '{{ secret_key }}'
+SECRET_KEY = 'swf#&==t9xhf3t#d5x$qcx4*%+ih5iqf2q=qepq+7bow)+@dk*'
 
 # Uncomment these to activate and customize Celery:
 # CELERY_ALWAYS_EAGER = False  # required to activate celeryd
@@ -80,7 +80,7 @@ LOGGING_CONFIG = None
 LOGGING = {
     'version': 1,
     'loggers': {
-        '{{ project_name }}': {
+        'uronline': {
             'level': "DEBUG"
         }
     }

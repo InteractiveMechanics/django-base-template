@@ -18,4 +18,4 @@ DATABASES = {
     },
 }
 
-SECRET_KEY = '{{ secret_key }}'
+SECRET_KEY = 'swf#&==t9xhf3t#d5x$qcx4*%+ih5iqf2q=qepq+7bow)+@dk*'

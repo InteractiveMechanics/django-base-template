@@ -1,5 +1,5 @@
 ========================================
-Welcome to {{ project_name }}'s documentation!
+Welcome to uronline's documentation!
 ========================================
 
 This is a documentation template for a **web application using Django 1.5**.
