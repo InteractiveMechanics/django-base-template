@@ -1,5 +1,4 @@
 {% extends "_layouts/base.html" %}
-{% load staticfiles %}
 
 {% block css %}
 {{block.super}}
@@ -13,50 +12,12 @@ body {
 {% endblock css %}
 
 <!-- Metadata -->
-{% block site_title %}{{ site_title }}{% endblock %}
 {% block page_title %}Home{% endblock %}
-{% block meta_description %}{{ site_description }}{% endblock %}
-{% block meta_author %}{{ site_author }}{% endblock %}
-{% block fb_title %}{{ facebook_title }}{% endblock %}
-{% block fb_type %}website{% endblock %}
-{% block fb_image %}{% static 'img/favicon.png' %}{% endblock %}
-{% block fb_url %}{{ facebook_url }}{% endblock %}
-{% block fb_desc %}{{ facebook_description }}{% endblock %}
-{% block twitter_card %}summary{% endblock %}
-{% block twitter_url %}{{ twitter_url }}{% endblock %}
-{% block twitter_title %}{{ twitter_title }}{% endblock %}
-{% block twitter_desc %}{{ twitter_description }}{% endblock %}
-{% block twitter_image %}{% static 'img/favicon.png' %}{% endblock %}
 <!-- End Metadata -->
 {% block page_class %}home-page{% endblock %}
 {% block content %}
 
 <!-- This code is taken from http://getbootstrap.com/examples/jumbotron/ -->
-
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">{{ site_title }}</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right">
-            <div class="form-group">
-              <input type="text" placeholder="Email" class="form-control">
-            </div>
-            <div class="form-group">
-              <input type="password" placeholder="Password" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-success">Sign in</button>
-          </form>
-        </div><!--/.navbar-collapse -->
-      </div>
-    </div>
 
     <div class="jumbotron">
       <div class="container">
