@@ -13,10 +13,22 @@
        More info: h5bp.com/i/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>{% block page_title %}{{ _("Your Site") }}{% endblock %}</title>
+  <!--SEO meta tags-->
+  <title>{% block site_title %}{% endblock %} | {% block page_title %}{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}{% endblock %}">
   <meta name="author" content="{% block meta_author %}{% endblock %}">
-
+  <meta name="og:title" content="{% block fb_title %}{% endblock %}">
+  <meta name="og:type" content="{% block fb_type %}{% endblock %}">
+  <meta name="og:image" content="{% block fb_image %}{% endblock %}">  
+  <meta name="og:url" content="{% block fb_url %}{% endblock %}">  
+  <meta name="og:description" content="{% block fb_desc %}{% endblock %}">  
+  <meta name="twitter:card" content="{% block twitter_card %}{% endblock %}">  
+  <meta name="twitter:url" content="{% block twitter_url %}{% endblock %}">  
+  <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}">  
+  <meta name="twitter:description" content="{% block twitter_desc %}{% endblock %}">  
+  <meta name="twitter:image" content="{% block twitter_image %}{% endblock %}">  
+  <!--End SEO meta tags-->
+  
   <!-- Mobile viewport optimized: h5bp.com/viewport -->
   <meta name="viewport" content="width=device-width">
 
