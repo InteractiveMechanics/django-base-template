@@ -1,0 +1,90 @@
+/* =============================================================================
+   App specific CSS file.
+
+   This is usually where the site/app's CSS specific rules are setup. Note that you could
+   do exactly the same using less by adding a '@import "app.less";' at the end of
+   css/less/bootstrap.less file.
+
+   ========================================================================== */
+/* Space out content a bit */
+body {
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/* Custom page header */
+.header {
+  padding-top: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h1 {
+  padding-bottom: 19px;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+}
+/* Make header link muted */
+.header-title a {
+    color: #999;
+}
+/* Link in header should not react to hover or focus */
+.header-title a:hover, a:focus {
+  text-decoration: none;
+  color: #999;
+}
+
+/* Custom nav-pills */
+.nav-pills-lg a {
+  font-size: 18px;
+}
+.nav-pills-lg > li.active > a, .nav-pills-lg > li.active > a:hover, .nav-pills-lg > li.active > a:focus {
+  color: #000000;
+  background-color: transparent;
+  text-decoration: underline
+}
+
+/* Custom navbar appearance */
+.navbar-xs .navbar { 
+  min-height:28px; 
+} 
+.navbar-xs .navbar .navbar-brand { 
+  padding: 8px 8px;
+  font-size: 16px;
+  line-height: 18px; 
+} 
+.navbar-xs .navbar .navbar-nav > li > a {  
+  padding-top: 7px; 
+  padding-bottom: 7px; 
+  line-height: 20px;
+  font-size: 12px;  
+} 
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+}
