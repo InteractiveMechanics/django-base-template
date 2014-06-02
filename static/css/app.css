@@ -23,6 +23,7 @@ body {
 /* Custom page header */
 .header {
   padding-top: 20px;
+  margin-bottom: 15px;
   border-bottom: 1px solid #e5e5e5;
 }
 /* Make the masthead heading the same height as the navigation */
@@ -67,6 +68,25 @@ body {
   line-height: 20px;
   font-size: 12px;  
 } 
+
+.navbar-xs .navbar .navbar-nav > li > ul > li > a {  
+  padding-top: 7px; 
+  padding-bottom: 7px; 
+  line-height: 20px;
+  font-size: 12px;  
+} 
+
+/* Custon main-nav appearance */
+.main-nav {
+  background-color: transparent;
+  border-color: transparent;
+  margin-bottom: 0;
+}
+
+/* Create smaller navbar toggle for top nav menu */
+.small-toggle {
+  padding: 1px 6px;
+}
 
 /* Custom page footer */
 .footer {

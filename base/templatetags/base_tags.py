@@ -6,6 +6,9 @@ register = template.Library()
 
 @register.simple_tag
 def navactive(request, urls):
+    """ Returns "active" if the current request is for the givens urls. 
+        Used by the nav menus to highlight the active tab. """
+
     if request.path in ( reverse(url) for url in urls.split() ):
         return "active"
     return ""
