@@ -24,6 +24,7 @@ class Media(models.Model):
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
     last_mod_by = models.ForeignKey(User)
+    description = models.TextField(blank = True)
     
     def __unicode__(self):
         return self.title

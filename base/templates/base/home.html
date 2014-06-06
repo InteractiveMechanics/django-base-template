@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% load staticfiles %}
 
 <!-- Metadata -->
 {% block page_title %}Home{% endblock %}
@@ -6,16 +7,45 @@
 {% block body_class %}container{% endblock %}
 {% block content %}
 
-<!-- This code is taken from http://getbootstrap.com/examples/jumbotron/ -->
+<!-- Body -->
 
   <div class="row">
     <div class="col-md-6">
       <div id="slider" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-          <li data-target="#slider" data-slide-to="0" class="active"></li>
-          <li data-target="#slider" data-slide-to="1"></li>
-          <li data-target="#slider" data-slide-to="2"></li>
-        </ol>
+        <div class="carousel-buttons">
+          <div class="btn-group">
+            <button href="#slider" data-slide="prev" class="btn btn-default">
+              <span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button id="play-button" type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-play"></span>
+            </button>
+            <button id="pause-button" type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-pause"></span>
+            </button>
+            <button href="#slider" data-slide="next" class="btn btn-default">
+              <span class="glyphicon glyphicon-chevron-right"></span>
+            </button>
+          </div>          
+        </div>        
+        <div class="carousel-inner">
+          {% for img in featured_imgs %}
+            <div class="item {% if forloop.counter0 = 0 %}active{% endif %}">
+              <div class="center-cropped" style="background-image: url('{{ img.uri }}');">
+                <img src="{{ img.uri }}" alt="{% if img.description %}{{ img.description }}{% else %}No description for this image{% endif %}">
+              </div>
+              <div class="carousel-info-button">
+                <button rel="popover" type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-trigger="hover" data-content="{% if img.description %}{{ img.description }}{% else %}No description for this image{% endif %}">
+                  <span class="glyphicon glyphicon-info-sign"></span>
+                </button>
+              </div>
+            </div>
+          {% empty %}
+            <div class="item active">
+              <img src="{% static 'img/featured_img_example.jpg' %}" alt="Please select a featured image from the admin portal.">
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
     <div class="col-md-6">
@@ -23,4 +53,25 @@
     </div>
   </div>
 
+<!-- End Body -->
 {% endblock %}
+
+<!-- Homepage Unique JS -->
+{% block js %}
+
+  <script>
+    $(document).ready(function() {
+      $("[rel='popover']").popover();
+    });
+    
+    $('#play-button').click(function () {
+      $('#slider').carousel('cycle');
+    });
+    
+    $('#pause-button').click(function () {
+      $('#slider').carousel('pause');
+    });
+  </script>
+
+{% endblock %}
+<!-- End Homepage Unique JS -->
