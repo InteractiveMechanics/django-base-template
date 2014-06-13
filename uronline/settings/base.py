@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'djcelery',
     'debug_toolbar',
     'compressor',
+    'haystack',
 
     # Database migrations
     'south',
@@ -296,3 +297,10 @@ LOGGING = {
 #CEF_VENDOR = 'Your Company'
 #CEF_VERSION = '0'
 #CEF_DEVICE_VERSION = '0'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://localhost:8983/solr/subjects'
+    },
+}

@@ -12,6 +12,14 @@ body {
   padding-bottom: 20px;
 }
 
+* {
+  font-family: Palatino;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
 /* Everything but the jumbotron gets side spacing for mobile first views */
 .header,
 .marketing,
@@ -47,6 +55,12 @@ body {
 .nav-pills-lg a {
   font-size: 18px;
 }
+
+.nav-pills-lg p {
+  font-size: 18px;
+  padding: 10px 15px;
+}
+
 .nav-pills-lg > li.active > a, .nav-pills-lg > li.active > a:hover, .nav-pills-lg > li.active > a:focus {
   color: #000000;
   background-color: transparent;
@@ -92,7 +106,10 @@ body {
 .footer {
   padding-top: 19px;
   color: #777;
-  border-top: 1px solid #e5e5e5;
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  text-align: center;
 }
 
 /* Set the size of the slider */
@@ -132,6 +149,80 @@ body {
   color: #fff;
   bottom: 10px;
   left: 10px;
+}
+
+/* Styles of sitewide search box */
+.general-search-box {
+  background-color: #000;
+  padding: 25px 25px;
+}
+
+@media only screen and (min-width: 480px) and (max-width: 768px) {
+    .general-search-box {
+        margin: 0 10px;
+    }
+}
+
+.general-search-box h2 {
+  color: #fff;
+  margin-top: 5px;
+  font-family: Palatino;
+}
+
+.full-width-form {
+  width: 100%
+}
+
+.banner a {
+  color: #000;
+}
+
+.banner a:hover, .banner a:focus {
+  text-decoration: none;
+}
+
+.banner {
+  background-color: #e7e7e7;
+  border-top: 15px solid #428bca;
+  margin-bottom: 20px;
+  height: 164px;
+}
+
+.media-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/media_banner.png');
+}
+
+.location-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/location_banner.png');
+}
+
+.people-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/people_banner.png');
+}
+
+.banner h1 {
+  padding: 10px 35px;
+  font-family: Palatino;
+  color: #000;
+}
+
+.banner h4 {
+  padding: 1px 35px;
+  color: #000;
+}
+
+.jumbotron h1, .jumbotron p {
+  font-family: Palatino;
+  text-align: center;
+}
+
+@media only screen and (max-width: 1026px) {
+  #banner-buttons {
+    display: none;
+  }
+  .carousel-info-button {
+    display:none;
+  }
 }
 
 /* Responsive: Portrait tablets and up */

@@ -1,0 +1,14 @@
+{% with obj=result.object %}
+<div class="accordion-group">
+<div class="accordion-heading"><a class="accordion-toggle" href="#collapse_{{ obj.id }}" data-toggle="collapse" data-parent="#accordion2">
+ {{ obj.name }}
+ </a>
+<div style="padding: 8px 15px;">
+Property: {{ obj.property }}
+ 
+Val: {{ obj.property_value }}
+ 
+</div>
+</div>
+</div>
+{% endwith %}

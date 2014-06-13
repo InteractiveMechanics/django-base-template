@@ -1,16 +1,18 @@
 {% extends "_layouts/base.html" %}
 {% load staticfiles %}
+{% load base_tags %}
 
 <!-- Metadata -->
 {% block page_title %}Home{% endblock %}
 <!-- End Metadata -->
 {% block body_class %}container{% endblock %}
-{% block content %}
+{% block home_active %}active{% endblock %} <!-- Selects Home tab in Header Menu -->
 
-<!-- Body -->
+{% block content %}
 
   <div class="row">
     <div class="col-md-6">
+      <!-- Featured Image Carousel -->
       <div id="slider" class="carousel slide" data-ride="carousel">
         <div class="carousel-buttons">
           <div class="btn-group">
@@ -46,14 +48,44 @@
             </div>
           {% endfor %}
         </div>
-      </div>
+      </div> <!-- End Featured Image Carousel -->
+      
+      <!-- Sitewide Search Box -->
+      <div class="general-search-box">
+        <h2>Search the Database</h2>
+        <form action="/search" method="get" class="form-inline" role="form">
+          <div class="form-group full-width-form">
+            <label class="sr-only" for="general_search">Search</label>
+            <input type="text" name="q" class="form-control" id="general_search" placeholder="Enter search terms">
+          </div>
+        </form>
+      </div> <!-- End Sitewide Search Box -->
+      
     </div>
-    <div class="col-md-6">
     
-    </div>
+    <!-- Search Banners -->
+    <div class="col-md-6" id="banner-buttons">
+      <a href="/search/?q=&models=base.mediaproperty">
+        <div class="row banner media-banner">
+          <h1>Explore the Archive</h1>
+          <h4><i>Search images, letters, records, and more...</i></h4>
+        </div>
+      </a>
+      <div class="row banner location-banner"> 
+        <a href="{% url 'map' %}">
+          <h1 style="text-align:right">Search the Map</h1>
+          <h4 style="text-align:right"><i>Explore the interactive map...</i></h4>
+        </a>
+      </div>
+      <div class="row banner people-banner">
+        <a href="/search/?q=&models=base.peopleproperty">
+          <h1>Meet the People</h1>
+          <h4><i>Discover the project's key figures...</i></h4>
+        </a>
+      </div>      
+    </div><!-- End Search Banners -->
   </div>
 
-<!-- End Body -->
 {% endblock %}
 
 <!-- Homepage Unique JS -->
