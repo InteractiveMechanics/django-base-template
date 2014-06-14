@@ -13,7 +13,7 @@ class GlobalVars(models.Model):
 class FeaturedImgs(models.Model):
     uri = models.URLField()
     description = models.CharField(max_length = 200)
-
+    
 """Types of Media, such as image/jpeg, text/html, etc"""
 class MediaType(models.Model):
     type = models.CharField(max_length = 40)
@@ -30,7 +30,23 @@ class DescriptiveProperty(models.Model):
     last_mod_by = models.ForeignKey(User)    
 
     def __unicode__(self):
-        return self.property         
+        return self.property
+
+"""Descriptive properties used for displaying search results"""
+class ResultProperty(models.Model):
+    display_field = models.CharField(max_length = 40)
+    field_type = models.ForeignKey(DescriptiveProperty)
+        
+"""Types of relationships between objects"""
+class Relations(models.Model):
+    relation = models.CharField(max_length = 60)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)    
+
+    def __unicode__(self):
+        return self.relation      
         
 """Files that help make up documentation for project"""        
 class Media(models.Model):
@@ -42,6 +58,12 @@ class Media(models.Model):
     
     def __unicode__(self):
         return self.title
+        
+    def get_properties(self):
+        return self.mediaproperty_set.all()
+        
+    def get_type(self):
+        return 'media';
 
 """Descriptive Properties of Media Files"""        
 class MediaProperty(models.Model):
@@ -56,6 +78,9 @@ class MediaProperty(models.Model):
     def __unicode__(self):
         return self.property_value
         
+    def get_properties(self):
+        return self.media.get_properties()
+                
 """Primary subjects of observation for a project, usually objects or locations"""        
 class Subject(models.Model):
     title = models.CharField(max_length = 100)
@@ -66,7 +91,13 @@ class Subject(models.Model):
     
     def __unicode__(self):
         return self.title
-
+        
+    def get_properties(self):
+        return self.subjectproperty_set.all()
+        
+    def get_type(self):
+        return 'subject';
+        
 """Descriptive Properties of Subjects"""        
 class SubjectProperty(models.Model):
     subject = models.ForeignKey(Subject)
@@ -79,3 +110,104 @@ class SubjectProperty(models.Model):
 
     def __unicode__(self):
         return self.property_value
+        
+    def get_properties(self):
+        return self.subject.get_properties()
+                
+"""The people and institutions that participated in a project"""        
+class PersonOrg(models.Model):
+    title = models.CharField(max_length = 100)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+    
+    def __unicode__(self):
+        return self.title
+        
+    def get_properties(self):
+        return self.personorgproperty_set.all()
+       
+    def get_type(self):
+        return 'person_org';       
+
+"""Descriptive Properties of People and Organizations"""        
+class PersonOrgProperty(models.Model):
+    person_org = models.ForeignKey(PersonOrg)
+    property = models.ForeignKey(DescriptiveProperty)
+    property_value = models.TextField()
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)   
+
+    def __unicode__(self):
+        return self.property_value
+        
+    def get_properties(self):
+        return self.person_org.get_properties()
+                
+"""Related media and subjects"""
+class MediaSubjectRelations(models.Model):
+    media = models.ForeignKey(Media)
+    subject = models.ForeignKey(Subject)
+    relation_type = models.ForeignKey(Relations)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.media.title + ":" + self.subject.title
+        
+"""Related media and people"""
+class MediaPersonOrgRelations(models.Model):
+    media = models.ForeignKey(Media)
+    person_org = models.ForeignKey(PersonOrg)
+    relation_type = models.ForeignKey(Relations)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.media.title + ":" + self.person_org.title 
+        
+"""Related subjects"""
+class SubjectSubjectRelations(models.Model):
+    subject1 = models.ForeignKey(Subject, related_name='subject1')
+    subject2 = models.ForeignKey(Subject, related_name='subject2')
+    relation_type = models.ForeignKey(Relations)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.subject1.title + ":" + self.subject2.title 
+        
+"""Related media"""
+class MediaMediaRelations(models.Model):
+    media1 = models.ForeignKey(Media, related_name='media1')
+    media2 = models.ForeignKey(Media, related_name='media2')
+    relation_type = models.ForeignKey(Relations)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.media1.title + ":" + self.media2.title
+
+"""Related persons and organizations"""
+class PersonOrgPersonOrgRelations(models.Model):
+    person_org1 = models.ForeignKey(PersonOrg, related_name='person_org1')
+    person_org2 = models.ForeignKey(PersonOrg, related_name='person_org2')
+    relation_type = models.ForeignKey(Relations)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.person_org1.title + ":" + self.person_org2.title 

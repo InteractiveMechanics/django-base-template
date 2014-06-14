@@ -120,10 +120,10 @@
             <div class="navbar-collapse collapse" id="navbar-collapse-2">
               <ul class="nav nav-pills nav-pills-lg pull-right">
                 <li class="{% block home_active %}{% endblock %}"><a href="{% url 'home' %}">Home</a></li>
-                <li class="{% block artifacts_active %}{% endblock %}"><a href="/search/?q=&models=base.subjectproperty">Artifacts</a></li>
-                <li class="{% block media_active %}{% endblock %}"><a href="/search/?q=&models=base.mediaproperty">Media</a></li>
+                <li class="{% block artifacts_active %}{% endblock %}"><a href="/search/?q=&models=base.subject">Artifacts</a></li>
+                <li class="{% block media_active %}{% endblock %}"><a href="/search/?q=&models=base.media">Media</a></li>
                 <li class="{% block locations_active %}{% endblock %}"><a href="{% url 'map' %}">Locations</a></li>
-                <li class="{% block people_active %}{% endblock %}"><a href="/search/?q=&models=base.peopleproperty">People</a></li>
+                <li class="{% block people_active %}{% endblock %}"><a href="/search/?q=&models=base.personorg">People</a></li>
               </ul>
             </div><!--/.navbar-collapse -->
           </div>

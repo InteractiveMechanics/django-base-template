@@ -13,7 +13,11 @@ body {
 }
 
 * {
-  font-family: Palatino;
+  font-family: Palatino!important;
+}
+
+.glyphicon {
+   font-family: 'Glyphicons Halflings'!important;
 }
 
 a:hover, a:focus {
@@ -211,9 +215,27 @@ a:hover, a:focus {
   color: #000;
 }
 
-.jumbotron h1, .jumbotron p {
+.jumbotron h1, .jumbotron h3, .jumbotron p {
   font-family: Palatino;
   text-align: center;
+}
+
+.advanced-search-form  ul {
+  list-style-type: none;
+  font-size: 20px;
+}
+
+.advanced-search-form  li{
+  display: inline;
+}
+
+#id_property {
+  width: 25%;
+  padding: 4px;
+}
+
+#id_q {
+  width: 55%;
 }
 
 @media only screen and (max-width: 1026px) {

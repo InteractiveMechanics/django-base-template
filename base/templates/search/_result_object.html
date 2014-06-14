@@ -1,14 +1,36 @@
 {% with obj=result.object %}
-<div class="accordion-group">
-<div class="accordion-heading"><a class="accordion-toggle" href="#collapse_{{ obj.id }}" data-toggle="collapse" data-parent="#accordion2">
- {{ obj.name }}
- </a>
-<div style="padding: 8px 15px;">
-Property: {{ obj.property }}
+{% load base_tags %}
+
+<ul class="list-group">
+  <li class="list-group-item">
+  
+    {% if obj.get_type == 'media' %}
+      <span class="badge">Media</span>
+      <h4 class="list-group-item-heading">
+        {% load_result_display_fields result.get_additional_fields 'med_title1' %}
+      </h4>
+      <p>
+        {% load_result_display_fields result.get_additional_fields 'med_desc' %}        
+      </p>
+    {% elif obj.get_type == 'subject' %}
+      <span class="badge">Subject</span>
+      <h4 class="list-group-item-heading">
+        {% load_result_display_fields result.get_additional_fields 'subj_title1' %}
+      </h4>
+      <p>
+        {% load_result_display_fields result.get_additional_fields 'subj_desc' %}        
+      </p>
+    {% else %}
+      <span class="badge">Person/Organization</span>
+      <h4 class="list-group-item-heading">
+        {% load_result_display_fields result.get_additional_fields 'po_title1' %}
+      </h4>
+      <p>
+        {% load_result_display_fields result.get_additional_fields 'po_desc' %}        
+      </p>
+    {% endif %}
+    
+  </li>
+</ul>
  
-Val: {{ obj.property_value }}
- 
-</div>
-</div>
-</div>
 {% endwith %}
