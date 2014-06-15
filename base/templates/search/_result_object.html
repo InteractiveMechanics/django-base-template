@@ -16,12 +16,7 @@
       </p>
       <div id="collapsemed{{ obj.id }}" class="panel-collapse collapse">
         <table class="table table-striped">
-          {% for prop in obj.get_properties %}
-            <tr>
-              <td>{{ prop.property }}</td>
-              <td>{{ prop.property_value }}</td>
-            </tr>
-          {% endfor %}
+          {% get_result_details result.get_additional_fields %}
         </table>
       </div>
     {% elif obj.get_type == 'subject' %}
@@ -36,12 +31,7 @@
       </p>
       <div id="collapsesub{{ obj.id }}" class="panel-collapse collapse">
         <table class="table table-striped">
-          {% for prop in obj.get_properties %}
-            <tr>
-              <td>{{ prop.property }}</td>
-              <td>{{ prop.property_value }}</td>
-            </tr>
-          {% endfor %}
+          {% get_result_details result.get_additional_fields %}
         </table>
       </div>
     {% else %}
@@ -56,12 +46,7 @@
       </p>    
       <div id="collapsepo{{ obj.id }}" class="panel-collapse collapse">
         <table class="table table-striped">
-          {% for prop in obj.get_properties %}
-            <tr>
-              <td>{{ prop.property }}</td>
-              <td>{{ prop.property_value }}</td>
-            </tr>
-          {% endfor %}
+           {% get_result_details result.get_additional_fields %}
         </table>
       </div>
     {% endif %}

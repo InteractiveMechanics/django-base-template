@@ -1,6 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-from base.models import GlobalVars, ResultProperty
+from base.models import GlobalVars, ResultProperty, DescriptiveProperty
 
 register = template.Library()
 
@@ -29,3 +29,29 @@ def load_result_display_fields(fields, key):
     prop_id = prop.field_type.id
     
     return fields.get(('prop_' + str(prop_id)), '')
+    
+@register.simple_tag    
+def get_query_params(request):
+    str = ''
+    
+    keys = ['property', 'q', 'models']
+    
+    for key in keys:
+        if key in request:
+            param = key + '=' + request[key] + '&amp;'
+            str += param
+    
+    return str
+    
+@register.simple_tag    
+def get_result_details(fields):
+    rowhtml = ''
+
+    for field, value in fields.items():
+        if field.startswith('prop_'):
+            prop_num = field[5:]
+            prop = DescriptiveProperty.objects.get(id=prop_num)
+            row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'
+            rowhtml += row
+            
+    return rowhtml

@@ -304,3 +304,5 @@ HAYSTACK_CONNECTIONS = {
         'URL': 'http://localhost:8983/solr/subjects'
     },
 }
+
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10

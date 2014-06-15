@@ -11,7 +11,7 @@ class GlobalVars(models.Model):
         verbose_name_plural = 'Global Variables'
     
     def __unicode__(self):
-        return self.variable + self.val
+        return self.variable
         
 """Featured images for home page"""
 class FeaturedImgs(models.Model):
@@ -21,6 +21,9 @@ class FeaturedImgs(models.Model):
     class Meta:
         verbose_name = 'Featured Image'
         verbose_name_plural = 'Featured Images'
+        
+    def __unicode__(self):
+        return self.description
     
 """Types of Media, such as image/jpeg, text/html, etc"""
 class MediaType(models.Model):
@@ -52,6 +55,9 @@ class ResultProperty(models.Model):
     class Meta:
         verbose_name = 'Result Property'
         verbose_name_plural = 'Result Properties'
+
+    def __unicode__(self):
+        return self.display_field
         
 """Types of relationships between objects"""
 class Relations(models.Model):
