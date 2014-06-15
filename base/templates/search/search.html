@@ -13,7 +13,7 @@
       <h2 style="text-align:center">Advanced Search</h2>
       <div class="advanced-search-form">
         <ul>
-          {{ form.as_table }}
+          {{ form.as_ul }}
           <li>
             <input type="submit" value="Search">
           </li>
@@ -43,3 +43,15 @@
     {% endif %}
   </form>
 {% endblock %}
+
+<!-- Search Unique JS -->
+{% block js %}
+
+  <script>
+    $(document).ready(function() {
+      $('#accordion').collapse();
+    });
+  </script>
+
+{% endblock %}
+<!-- End Search Unique JS -->

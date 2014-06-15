@@ -6,6 +6,10 @@ class GlobalVars(models.Model):
     variable = models.CharField(max_length = 200)
     val = models.TextField()
 	
+    class Meta:
+        verbose_name = 'Global Variable'
+        verbose_name_plural = 'Global Variables'
+    
     def __unicode__(self):
         return self.variable + self.val
         
@@ -13,6 +17,10 @@ class GlobalVars(models.Model):
 class FeaturedImgs(models.Model):
     uri = models.URLField()
     description = models.CharField(max_length = 200)
+
+    class Meta:
+        verbose_name = 'Featured Image'
+        verbose_name_plural = 'Featured Images'
     
 """Types of Media, such as image/jpeg, text/html, etc"""
 class MediaType(models.Model):
@@ -31,11 +39,19 @@ class DescriptiveProperty(models.Model):
 
     def __unicode__(self):
         return self.property
+        
+    class Meta:
+        verbose_name = 'Descriptive Property'
+        verbose_name_plural = 'Descriptive Properties'
 
 """Descriptive properties used for displaying search results"""
 class ResultProperty(models.Model):
     display_field = models.CharField(max_length = 40)
     field_type = models.ForeignKey(DescriptiveProperty)
+    
+    class Meta:
+        verbose_name = 'Result Property'
+        verbose_name_plural = 'Result Properties'
         
 """Types of relationships between objects"""
 class Relations(models.Model):
@@ -46,7 +62,10 @@ class Relations(models.Model):
     last_mod_by = models.ForeignKey(User)    
 
     def __unicode__(self):
-        return self.relation      
+        return self.relation
+        
+    class Meta:
+        verbose_name_plural = 'relations'
         
 """Files that help make up documentation for project"""        
 class Media(models.Model):
@@ -55,6 +74,9 @@ class Media(models.Model):
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
     last_mod_by = models.ForeignKey(User)
+
+    class Meta:
+        verbose_name_plural = 'media'
     
     def __unicode__(self):
         return self.title
@@ -80,7 +102,11 @@ class MediaProperty(models.Model):
         
     def get_properties(self):
         return self.media.get_properties()
-                
+
+    class Meta:
+        verbose_name = 'Media Property'
+        verbose_name_plural = 'Media Properties'
+        
 """Primary subjects of observation for a project, usually objects or locations"""        
 class Subject(models.Model):
     title = models.CharField(max_length = 100)
@@ -106,7 +132,11 @@ class SubjectProperty(models.Model):
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)   
+    last_mod_by = models.ForeignKey(User)
+
+    class Meta:
+        verbose_name = 'Subject Property'    
+        verbose_name_plural = 'Subject Properties'    
 
     def __unicode__(self):
         return self.property_value
@@ -139,7 +169,11 @@ class PersonOrgProperty(models.Model):
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)   
+    last_mod_by = models.ForeignKey(User)
+
+    class Meta:
+        verbose_name = 'PersonOrg Property'
+        verbose_name_plural = 'PersonOrg Properties'    
 
     def __unicode__(self):
         return self.property_value
