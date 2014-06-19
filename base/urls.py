@@ -10,4 +10,10 @@ urlpatterns = patterns('base.views',
     url(r'^search/', search_view_factory(
         form_class = PropertySelectorSearchForm
     ), name='haystack_search'),
+    # ex: /ur.iaas.upenn.edu/subject/5/
+    url(r'^subject/(?P<subject_id>\d+)/$', 'subjectdetail', name='subjectdetail'),
+    # ex: /ur.iaas.upenn.edu/personorg/5/
+    url(r'^(?P<personorg_id>\d+)/$', 'personorgdetail', name='personorgdetail'),
+    # ex: /ur.iaas.upenn.edu/media/5/
+    url(r'^media/(?P<media_id>\d+)/$', 'mediadetail', name='mediadetail'),
 )
