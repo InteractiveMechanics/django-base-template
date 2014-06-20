@@ -50,7 +50,7 @@ class DescriptiveProperty(models.Model):
 """Descriptive properties used for displaying search results"""
 class ResultProperty(models.Model):
     display_field = models.CharField(max_length = 40)
-    field_type = models.ForeignKey(DescriptiveProperty)
+    field_type = models.ForeignKey(DescriptiveProperty, blank = True, null = True)
     
     class Meta:
         verbose_name = 'Result Property'

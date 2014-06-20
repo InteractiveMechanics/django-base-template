@@ -1,6 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-from base.models import GlobalVars, ResultProperty, DescriptiveProperty
+from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations
 
 register = template.Library()
 
@@ -25,11 +25,32 @@ def load_globals(key):
 def load_result_display_fields(fields, key):
     """ Selects the field to be displayed in result list """
 
-    prop = ResultProperty.objects.get(display_field = key)
-    prop_id = prop.field_type.id
+    prop_list = []
     
-    return fields.get(('prop_' + str(prop_id)), '')
+    if key.endswith('title'):
+        for i in range(3):
+            title_str = key + str(i + 1)
+            title = ResultProperty.objects.get(display_field = title_str)
+            if title.field_type:
+                p = 'prop_' + str(title.field_type.id)
+                property_name = title.field_type.property
+                value = str(fields.get(p, ''))
+                if value != '' :
+                    prop_list.append(property_name + ' : ' + str(fields.get(p, '')))
+    else:
+        prop = ResultProperty.objects.get(display_field = key)
+        if prop.field_type:
+            prop_id = prop.field_type.id
+            p = 'prop_' + str(prop_id)
+            prop_list.append(str(fields.get(p, '')))
     
+    prop_str = ''
+    
+    for p in prop_list:
+        prop_str += (p + '<br>')
+ 
+    return prop_str
+        
 @register.simple_tag    
 def get_query_params(request):
     str = ''
@@ -55,3 +76,25 @@ def get_result_details(fields):
             rowhtml += row
             
     return rowhtml
+    
+@register.simple_tag    
+def get_img_thumb(object):
+    relation = MediaSubjectRelations.objects.filter(subject = object.id)
+    
+    if relation:
+        first_rel = relation[0]
+        uri_prop = first_rel.media.mediaproperty_set.get(property__property = 'URI')
+        return uri_prop.property_value
+    
+    return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
+    
+@register.simple_tag    
+def get_img_thumb_po(object):
+    relation = MediaPersonOrgRelations.objects.filter(person_org = object.id)
+    
+    if relation:
+        first_rel = relation[0]
+        uri_prop = first_rel.media.mediaproperty_set.get(property__property = 'URI')
+        return uri_prop.property_value
+    
+    return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
