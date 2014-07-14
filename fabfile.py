@@ -1,8 +1,6 @@
 """
-Starter fabfile for deploying the uronline project.
+Fabfile for deploying the uronline project.
 
-Change all the things marked CHANGEME. Other things can be left at their
-defaults if you are happy with the default layout.
 """
 
 import posixpath
@@ -13,13 +11,12 @@ from fabric.operations import _prefix_commands, _prefix_env_vars
 #from fabric.decorators import runs_once
 #from fabric.context_managers import cd, lcd, settings, hide
 
-# CHANGEME
-env.hosts = ['user@uronline.example.com']
-env.code_dir = '/srv/www/uronline'
-env.project_dir = '/srv/www/uronline/uronline'
-env.static_root = '/srv/www/uronline/static/'
-env.virtualenv = '/srv/www/uronline/.virtualenv'
-env.code_repo = 'git@github.com:user/uronline.git'
+env.hosts = ['localhost']
+env.code_dir = '/home/uronline'
+env.project_dir = '/home/uronline/uronline'
+env.static_root = '/home/uronline/static/'
+env.virtualenv = ''
+env.code_repo = 'git@github.com:sashafr/django-base-template.git'
 env.django_settings_module = 'uronline.settings'
 
 # Python version
@@ -28,8 +25,7 @@ PYTHON_PREFIX = ""  # e.g. /usr/local  Use "" for automatic
 PYTHON_FULL_PATH = "%s/bin/%s" % (PYTHON_PREFIX, PYTHON_BIN) if PYTHON_PREFIX else PYTHON_BIN
 
 # Set to true if you can restart your webserver (via wsgi.py), false to stop/start your webserver
-# CHANGEME
-DJANGO_SERVER_RESTART = False
+DJANGO_SERVER_RESTART = True
 
 
 def virtualenv(venv_dir):
@@ -99,7 +95,7 @@ def version():
 @task
 def uname():
     """ Prints information about the host. """
-    run("uname -a")
+    local("uname -a")
 
 
 @task
@@ -107,7 +103,7 @@ def webserver_stop():
     """
     Stop the webserver that is running the Django instance
     """
-    run("service apache2 stop")
+    local("service apache2 stop")
 
 
 @task
@@ -115,7 +111,7 @@ def webserver_start():
     """
     Starts the webserver that is running the Django instance
     """
-    run("service apache2 start")
+    local("service apache2 start")
 
 
 @task
@@ -125,7 +121,7 @@ def webserver_restart():
     """
     if DJANGO_SERVER_RESTART:
         with cd(env.code_dir):
-            run("touch %s/wsgi.py" % env.project_dir)
+            local("touch %s/wsgi.py" % env.project_dir)
     else:
         with settings(warn_only=True):
             webserver_stop()
@@ -135,16 +131,16 @@ def webserver_restart():
 def restart():
     """ Restart the wsgi process """
     with cd(env.code_dir):
-        run("touch %s/uronline/wsgi.py" % env.code_dir)
+        local("touch %s/uronline/wsgi.py" % env.code_dir)
 
-
+@task
 def build_static():
+    """Copies all static files from each application to STATIC_ROOT"""
     assert env.static_root.strip() != '' and env.static_root.strip() != '/'
-    with virtualenv(env.virtualenv):
-        with cd(env.code_dir):
-            run_venv("./manage.py collectstatic -v 0 --clear --noinput")
+    with cd(env.code_dir):
+        local("python manage.py collectstatic -v 0 --clear --noinput")
 
-    run("chmod -R ugo+r %s" % env.static_root)
+    local("chmod -R ugo+r %s" % env.static_root)
 
 
 @task

@@ -121,7 +121,7 @@ USE_TZ = True
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'America/New_York'
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -175,10 +175,8 @@ def custom_show_toolbar(request):
 
 
 DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': 'uronline.settings.base.custom_show_toolbar',
-    'HIDE_DJANGO_SQL': True,
-    'TAG': 'body',
+    'INSERT_BEFORE': '</body>',
     'SHOW_TEMPLATE_CONTEXT': True,
     'ENABLE_STACKTRACES': True,
 }
@@ -244,10 +242,6 @@ DEBUG = TEMPLATE_DEBUG = False
 # instances and False on stage/prod.
 DEV = False
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
-
 # SECURITY WARNING: keep the secret key used in production secret!
 # Hardcoded values can leak through source control.
 # This is an example method of getting the value from an environment setting.
@@ -272,8 +266,8 @@ INTERNAL_IPS = ('127.0.0.1')
 # Set this to true if you use a proxy that sets X-Forwarded-Host
 #USE_X_FORWARDED_HOST = False
 
-SERVER_EMAIL = "webmaster@example.com"
-DEFAULT_FROM_EMAIL = "webmaster@example.com"
+SERVER_EMAIL = "uronline@ur.iaas.upenn.edu"
+DEFAULT_FROM_EMAIL = "uronline@ur.iaas.upenn.edu"
 SYSTEM_EMAIL_PREFIX = "[uronline]"
 
 ## Log settings

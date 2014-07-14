@@ -21,5 +21,6 @@ test_db/
 *.sublime-project
 *.sublime-workspace
 media/*
-*/settings/local-dist.py
+*/settings/test.py
 solr/*
+fabfile.py

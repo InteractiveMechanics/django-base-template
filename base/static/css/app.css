@@ -1,0 +1,262 @@
+/* =============================================================================
+   App specific CSS file.
+
+   This is usually where the site/app's CSS specific rules are setup. Note that you could
+   do exactly the same using less by adding a '@import "app.less";' at the end of
+   css/less/bootstrap.less file.
+
+   ========================================================================== */
+/* Space out content a bit */
+body {
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+* {
+  font-family: Palatino!important;
+}
+
+.glyphicon {
+   font-family: 'Glyphicons Halflings'!important;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/* Custom page header */
+.header {
+  padding-top: 20px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h1 {
+  padding-bottom: 19px;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+}
+/* Make header link muted */
+.header-title a {
+    color: #999;
+}
+/* Link in header should not react to hover or focus */
+.header-title a:hover, a:focus {
+  text-decoration: none;
+  color: #999;
+}
+
+/* Custom nav-pills */
+.nav-pills-lg a {
+  font-size: 18px;
+}
+
+.nav-pills-lg p {
+  font-size: 18px;
+  padding: 10px 15px;
+}
+
+.nav-pills-lg > li.active > a, .nav-pills-lg > li.active > a:hover, .nav-pills-lg > li.active > a:focus {
+  color: #000000;
+  background-color: transparent;
+  text-decoration: underline
+}
+
+/* Custom navbar appearance */
+.navbar-xs .navbar { 
+  min-height:28px; 
+} 
+.navbar-xs .navbar .navbar-brand { 
+  padding: 8px 8px;
+  font-size: 16px;
+  line-height: 18px; 
+} 
+.navbar-xs .navbar .navbar-nav > li > a {  
+  padding-top: 7px; 
+  padding-bottom: 7px; 
+  line-height: 20px;
+  font-size: 12px;  
+} 
+
+.navbar-xs .navbar .navbar-nav > li > ul > li > a {  
+  padding-top: 7px; 
+  padding-bottom: 7px; 
+  line-height: 20px;
+  font-size: 12px;  
+} 
+
+/* Custon main-nav appearance */
+.main-nav {
+  background-color: transparent;
+  border-color: transparent;
+  margin-bottom: 0;
+}
+
+/* Create smaller navbar toggle for top nav menu */
+.small-toggle {
+  padding: 1px 6px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  text-align: center;
+}
+
+/* Set the size of the slider */
+.center-cropped {
+    width: 100%;
+    height: 400px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+/* Set the image to fill its parent and make transparent */
+.center-cropped img {
+   min-height: 100%;
+   min-width: 100%;
+
+   /* IE 8 */
+   -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+   /* IE 5-7 */
+   filter: alpha(opacity=0);
+   /* modern browsers */
+   opacity: 0;
+}
+
+/* Custom styles for carousel buttons */
+.carousel-buttons {
+  z-index: 1100;
+  position: absolute;
+  color: #fff;
+  bottom: 10px;
+  right: 10px;
+}
+
+.carousel-info-button {
+  z-index: 1100;
+  position: absolute;
+  color: #fff;
+  bottom: 10px;
+  left: 10px;
+}
+
+/* Styles of sitewide search box */
+.general-search-box {
+  background-color: #000;
+  padding: 25px 25px;
+}
+
+@media only screen and (min-width: 480px) and (max-width: 768px) {
+    .general-search-box {
+        margin: 0 10px;
+    }
+}
+
+.general-search-box h2 {
+  color: #fff;
+  margin-top: 5px;
+  font-family: Palatino;
+}
+
+.full-width-form {
+  width: 100%
+}
+
+.banner a {
+  color: #000;
+}
+
+.banner a:hover, .banner a:focus {
+  text-decoration: none;
+}
+
+.banner {
+  background-color: #e7e7e7;
+  border-top: 15px solid #428bca;
+  margin-bottom: 20px;
+  height: 164px;
+}
+
+.media-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/media_banner.png');
+}
+
+.location-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/location_banner.png');
+}
+
+.people-banner {
+  background-image: url('http://ur.iaas.upenn.edu/static/img/people_banner.png');
+}
+
+.banner h1 {
+  padding: 10px 35px;
+  font-family: Palatino;
+  color: #000;
+}
+
+.banner h4 {
+  padding: 1px 35px;
+  color: #000;
+}
+
+.jumbotron h1, .jumbotron h3, .jumbotron p {
+  font-family: Palatino;
+  text-align: center;
+}
+
+.advanced-search-form  ul {
+  list-style-type: none;
+  font-size: 20px;
+}
+
+.advanced-search-form  li{
+  display: inline;
+}
+
+#id_property {
+  width: 25%;
+  padding: 4px;
+}
+
+#id_q {
+  width: 65%;
+}
+
+@media only screen and (max-width: 1026px) {
+  #banner-buttons {
+    display: none;
+  }
+  .carousel-info-button {
+    display:none;
+  }
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+}
