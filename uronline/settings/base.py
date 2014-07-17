@@ -258,17 +258,11 @@ DEV = False
 # BROKER_VHOST = 'django'
 # CELERY_RESULT_BACKEND = 'amqp'
 
-INTERNAL_IPS = ('127.0.0.1')
-
 # Enable this option for memcached
 #CACHE_BACKEND= "memcached://127.0.0.1:11211/"
 
 # Set this to true if you use a proxy that sets X-Forwarded-Host
 #USE_X_FORWARDED_HOST = False
-
-SERVER_EMAIL = "uronline@ur.iaas.upenn.edu"
-DEFAULT_FROM_EMAIL = "uronline@ur.iaas.upenn.edu"
-SYSTEM_EMAIL_PREFIX = "[uronline]"
 
 ## Log settings
 
@@ -291,12 +285,3 @@ SYSTEM_EMAIL_PREFIX = "[uronline]"
 #CEF_VENDOR = 'Your Company'
 #CEF_VERSION = '0'
 #CEF_DEVICE_VERSION = '0'
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://localhost:8983/solr/subjects'
-    },
-}
-
-HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10
