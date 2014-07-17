@@ -272,19 +272,19 @@ SYSTEM_EMAIL_PREFIX = "[uronline]"
 
 ## Log settings
 
-LOG_LEVEL = logging.INFO
-HAS_SYSLOG = True
-SYSLOG_TAG = "http_app_uronline"  # Make this unique to your project.
+#LOG_LEVEL = logging.INFO
+#HAS_SYSLOG = True
+#SYSLOG_TAG = "http_app_uronline"  # Make this unique to your project.
 # Remove this configuration variable to use your custom logging configuration
-LOGGING_CONFIG = None
-LOGGING = {
-    'version': 1,
-    'loggers': {
-        'uronline': {
-            'level': "DEBUG"
-        }
-    }
-}
+#LOGGING_CONFIG = None
+#LOGGING = {
+#    'version': 1,
+#    'loggers': {
+#        'uronline': {
+#            'level': "DEBUG"
+#        }
+#    }
+#}
 
 # Common Event Format logging parameters
 #CEF_PRODUCT = 'uronline'
