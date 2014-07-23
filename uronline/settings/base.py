@@ -33,7 +33,11 @@ LANGUAGE_CODE = 'en-us'
 ROOT_URLCONF = 'uronline.urls'
 
 # Application definition
-INSTALLED_APPS = (
+INSTALLED_APPS = (    
+
+    # Application base, containing global templates.
+    'base',
+    
     # Django contrib apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,15 +50,12 @@ INSTALLED_APPS = (
 
     # Third-party apps, patches, fixes
     'djcelery',
-    'debug_toolbar',
+    'debug_toolbar', # comment out in production
     'compressor',
     'haystack',
 
     # Database migrations
     'south',
-
-    # Application base, containing global templates.
-    'base',
 
     # Local apps, referenced via appname
 )
@@ -139,7 +140,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # comment out in production
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [

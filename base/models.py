@@ -5,15 +5,17 @@ from django.contrib.auth.models import User
 class GlobalVars(models.Model):
     variable = models.CharField(max_length = 200)
     val = models.TextField()
+    human_title = models.CharField(max_length = 200)
 	
     class Meta:
-        verbose_name = 'Global Variable'
-        verbose_name_plural = 'Global Variables'
+        verbose_name = 'Site Setting'
+        verbose_name_plural = 'Site Settings'
     
     def __unicode__(self):
-        return self.variable
+        return self.human_title + " = " + self.val
         
 """Featured images for home page"""
+# consider removing
 class FeaturedImgs(models.Model):
     uri = models.URLField()
     description = models.CharField(max_length = 200)
@@ -26,6 +28,7 @@ class FeaturedImgs(models.Model):
         return self.description
     
 """Types of Media, such as image/jpeg, text/html, etc"""
+# consider removing
 class MediaType(models.Model):
     type = models.CharField(max_length = 40)
 
@@ -129,6 +132,9 @@ class Subject(models.Model):
         
     def get_type(self):
         return 'subject';
+        
+    def get_unum(self):
+        return self.subjectproperty_set.get(property=23)
         
 """Descriptive Properties of Subjects"""        
 class SubjectProperty(models.Model):

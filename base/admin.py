@@ -10,6 +10,14 @@ class SubjectAdmin(admin.ModelAdmin):
     fields = ['title', 'notes', 'last_mod_by']
     inlines = [SubjectPropertyInline]
     search_fields = ['title']
+    list_display = ('title', 'get_unum')
+    
+    change_list_template = 'admin/base/change_list.html'
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['property_data'] = SubjectProperty.objects.all()
+        return super(SubjectAdmin, self).changelist_view(request, extra_context=extra_context)
 
 admin.site.register(Subject, SubjectAdmin)
 

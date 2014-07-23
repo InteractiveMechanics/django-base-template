@@ -1,8 +1,10 @@
 from django import template
 from django.core.urlresolvers import reverse
 from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations
+from django.contrib.admin.templatetags.admin_list import result_list
 
 register = template.Library()
+register.inclusion_tag('admin/base/expanded_change_list_results.html')(result_list)
 
 @register.simple_tag
 def navactive(request, urls):
