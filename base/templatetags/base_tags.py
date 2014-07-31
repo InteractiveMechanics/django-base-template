@@ -100,3 +100,13 @@ def get_img_thumb_po(object):
         return uri_prop.property_value
     
     return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
+    
+@register.simple_tag
+def get_properties_dropdown():
+    props = DescriptiveProperty.objects.all()
+    options = ''
+    for prop in props:
+        option = '<option value="' + str(prop.id) + '">' + prop.property + '</option>'
+        options += option
+        
+    return options

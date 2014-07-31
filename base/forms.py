@@ -4,6 +4,18 @@ from base.models import DescriptiveProperty
 from haystack.inputs import Raw
 from haystack.query import SearchQuerySet
 
+OPERATOR = (
+    ('and', 'AND'),
+    ('or', 'OR'),
+    ('not', 'NOT'),
+)
+
+SEARCH_TYPE = (
+    ('contains', 'contains'),
+    ('equals', 'equals'),
+    ('startswith', 'starts with'),
+)
+
 class PropertySelectorSearchForm(ModelSearchForm):
     property = forms.ModelChoiceField(required=False, label=('Property'), queryset=DescriptiveProperty.objects.all(), empty_label="Any")
     q = forms.CharField(required=False, label=(''), widget=forms.TextInput(attrs={'type': 'search'}))
@@ -28,3 +40,9 @@ class PropertySelectorSearchForm(ModelSearchForm):
             sqs = SearchQuerySet().filter(content=Raw('prop_' + str(prop.id) + ':' + self.cleaned_data['q']))
         
         return sqs
+        
+class AdvancedSearchForm(forms.Form):
+    operators = forms.ChoiceField(required=False, choices=OPERATOR)
+    property = forms.ModelChoiceField(required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    search_type = forms.ChoiceField(required=False, choices=SEARCH_TYPE)
+    prop_value = forms.CharField(required=False)

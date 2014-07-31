@@ -38,6 +38,9 @@ INSTALLED_APPS = (
     # Application base, containing global templates.
     'base',
     
+    # Third party admin app
+    'suit',
+    
     # Django contrib apps
     'django.contrib.auth',
     'django.contrib.contenttypes',

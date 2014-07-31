@@ -1,5 +1,22 @@
 from django.contrib import admin
 from base.models import *
+from base.forms import AdvancedSearchForm
+from django.forms.formsets import formset_factory
+
+class PropertyFilter(admin.SimpleListFilter):
+
+    title = 'property'
+    
+    parameter_name = 'prop'
+    
+    def lookups(self, request, model_admin):
+        properties = tuple((prop.id, prop.property) for prop in DescriptiveProperty.objects.all())    
+        return properties
+
+    def queryset(self, request, queryset):
+        if self.value():
+            prop_id = self.value()
+            return queryset.filter(subjectproperty__property = prop_id)
 
 class SubjectPropertyInline(admin.TabularInline):
     model = SubjectProperty
@@ -16,8 +33,9 @@ class SubjectAdmin(admin.ModelAdmin):
     
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context['property_data'] = SubjectProperty.objects.all()
+        extra_context['advanced_formset'] = 'test for context'
         return super(SubjectAdmin, self).changelist_view(request, extra_context=extra_context)
+        
 
 admin.site.register(Subject, SubjectAdmin)
 
