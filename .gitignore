@@ -23,4 +23,4 @@ test_db/
 media/*
 */settings/test.py
 solr/*
-*/fabfile.py
+/fabfile.py

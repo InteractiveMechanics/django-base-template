@@ -1,7 +1,8 @@
 from django import template
 from django.core.urlresolvers import reverse
-from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations
+from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject
 from django.contrib.admin.templatetags.admin_list import result_list
+from django.db.models import Q
 
 register = template.Library()
 register.inclusion_tag('admin/base/expanded_change_list_results.html')(result_list)
@@ -104,9 +105,136 @@ def get_img_thumb_po(object):
 @register.simple_tag
 def get_properties_dropdown():
     props = DescriptiveProperty.objects.all()
-    options = ''
+    options = '<option value="0">Any</option>'
     for prop in props:
         option = '<option value="' + str(prop.id) + '">' + prop.property + '</option>'
         options += option
         
     return options
+    
+@register.simple_tag
+def load_last_query(query):
+    types = {'icontains': 'contains', 'not_icontains': 'does not contain', 'istartswith': 'starts with', 'iendswith': 'ends with', 'blank': 'is blank', 'not_blank': 'is not blank', 'exact': 'equals', 'not_exact': 'is not equal', 'gt': 'is greater than', 'gte': 'is greater than or equal to', 'lt': 'is less than', 'lte': 'is less than or equal to'}
+
+    query_rows = query.split('???')
+    
+    display_text = ''
+    
+    for row in query_rows:
+        terms = row.split('___')
+        
+        if len(terms) >= 3:
+        
+            if terms[0].startswith('&'):
+                display_text += (' '  + terms[0][1:])
+                terms = terms[1:]
+        
+            # if a property is searched for that doesn't exist, set property to Any
+            prop = 'Any'
+            try:
+                prop = DescriptiveProperty.objects.get(pk=terms[0])
+            except DescriptiveProperty.DoesNotExist:
+                pass
+            display_text += (' (' + prop.property)
+            display_text += (' ' + types[terms[1]])
+            display_text += (' ' + terms[2] + ')')
+        
+    return display_text
+    
+@register.simple_tag
+def advanced_obj_search(search_term):
+
+    cleaned_search_term = search_term[2:]
+
+    query_rows = cleaned_search_term.split('%3F%3F%3F') #list of queries from search_term
+    
+    queryset = Subject.objects.all()
+
+    # make sure we received list of queries
+    if len(query_rows) > 0:
+               
+        for i, row in enumerate(query_rows):
+           
+            negate = False # whether the query will be negated
+            connector = '' # AND/OR/NOTHING
+            
+            terms = row.split('___')                
+            
+            if len(terms) >= 3:
+                # we got at least the number of terms we need
+
+                # CURRENT TERMS FORMAT: ([&AND/OR,] PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
+            
+                # remove and save the operator, if present
+                if terms[0].startswith('&'): 
+                    connector = terms[0][1:]
+                    terms = terms[1:]
+
+                # CURRENT TERMS FORMAT: (PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
+                    
+                # remove and save the negation, if present
+                if terms[1].startswith('not'):
+                    negate = True
+                    terms[1] = terms[1][4:]
+
+                # CURRENT TERMS FORMAT: (PROPERTY, SEARCH_TYPE, [SEARCH_KEYWORDS])
+
+                # create current query
+                kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
+                
+                # use negation
+                if negate:
+                    current_query = Q(Q(subjectproperty__property = terms[0]) & ~Q(**kwargs))
+                else:
+                    current_query = Q(Q(subjectproperty__property = terms[0]) & Q(**kwargs))
+                
+                # modify query set
+                if connector == 'AND':
+                    queryset = queryset.filter(current_query)
+                elif connector == 'OR':
+                    queryset = queryset | Subject.objects.filter(current_query)
+                else:
+                    if i == 0:
+                        # in this case, current query should be the first query, so no connector
+                        queryset = Subject.objects.filter(current_query)
+                    else:
+                        # if connector wasn't set, use &
+                        queryset = queryset.filter(current_query)
+        
+    return queryset.order_by('id')
+    
+@register.filter
+def get_next(value, arg):
+
+    terms = value.GET.get('_changelist_filters')
+    
+    if terms:
+        queryset = advanced_obj_search(terms)
+    
+        remaining_objects = queryset.filter(id__gt=arg).order_by('id')
+    
+        if remaining_objects:
+            return remaining_objects[0].id
+    
+    return ''
+    
+@register.filter
+def has_next(value, arg):
+    
+    terms = value.GET.get('_changelist_filters')
+
+    if terms:
+        queryset = advanced_obj_search(terms)
+        
+        remaining_objects = queryset.filter(id__gt = arg).order_by('id')[:1]
+        
+        if remaining_objects:
+            return True
+        else:
+            return True
+
+    return False
+    
+@register.filter
+def get_filter_param(value):
+    return value.GET.get('_changelist_filters')

@@ -59,6 +59,7 @@
 <script type="text/javascript">
 (function($) {
   $(document).ready(function() {
+  
     var textbox = document.getElementById('searchbar');
     var dropdown = document.getElementById('properties_dropdown');
     var button = document.getElementById('add_query_button');
@@ -68,13 +69,13 @@
     var or = document.getElementById('or_button');
     var qdisplay = document.getElementById('query_display');
     var clear_button = document.getElementById('clear_button');
-
+    
     button.onclick = function() {
       var prop = dropdown.value;
       var type = '___' + typedropdown.value;
       var value = '___' + valbox.value + '???';
       textbox.value = textbox.value + prop + type + value;
-      qdisplay.innerHTML = qdisplay.innerHTML + '(' + dropdown.value + ' ' + typedropdown.value + ' ' + valbox.value +  ')';
+      qdisplay.innerHTML = qdisplay.innerHTML + '(' + dropdown.options[dropdown.selectedIndex].text + ' ' + typedropdown.options[typedropdown.selectedIndex].text + ' ' + valbox.value +  ')';
       this.disabled = true;
       and.disabled = false;
       or.disabled = false;
@@ -82,7 +83,7 @@
     }
     
     and.onclick = function() {
-      textbox.value = textbox.value + '&&';
+      textbox.value = textbox.value + '&AND___';
       qdisplay.innerHTML = qdisplay.innerHTML + ' AND ';
       this.disabled = true;
       button.disabled = false;
@@ -91,7 +92,7 @@
     }
     
     or.onclick = function() {
-      textbox.value = textbox.value + '||';
+      textbox.value = textbox.value + '&OR___';
       qdisplay.innerHTML = qdisplay.innerHTML + ' OR ';
       this.disabled = true;
       button.disabled = false;
@@ -175,16 +176,14 @@
               {% get_properties_dropdown %}
             </select>
             <select id="match_type_dropdown">
-                <option value="contains">contains</option>
-                <option value="not_contains">does not contain</option>
-                <option value="like">like</option>
-                <option value="not_like">not like</option>
-                <option value="starts_with">starts with</option>
-                <option value="ends_with">ends with</option>
+                <option value="icontains">contains</option>
+                <option value="not_icontains">does not contain</option>
+                <option value="istartswith">starts with</option>
+                <option value="iendswith">ends with</option>
                 <option value="blank">is blank</option>
                 <option value="not_blank">is not blank</option>
-                <option value="equals">equals</option>
-                <option value="not_equals">is not equal</option>
+                <option value="exact">equals</option>
+                <option value="not_exact">is not equal</option>
                 <option value="gt">is greater than</option>
                 <option value="gte">is greater than or equal to</option>
                 <option value="lt">is less than</option>
@@ -197,7 +196,7 @@
             <button type="button" id="clear_button" disabled="disabled">Clear Last Query</button>
         </div>
         <div>
-            <p id="query_display"></p>
+            <p id="query_display">{% load_last_query request.GET.q %}</p>
         </div>
 
         {% block date_hierarchy %}

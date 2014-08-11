@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 """Variables used by pages throughout the site"""
 class GlobalVars(models.Model):
@@ -133,8 +134,36 @@ class Subject(models.Model):
     def get_type(self):
         return 'subject';
         
-    def get_unum(self):
-        return self.subjectproperty_set.get(property=23)
+    def identifiers(self):
+        field1 = ResultProperty.objects.get(display_field = 'subj_title1')
+        field2 = ResultProperty.objects.get(display_field = 'subj_title2')
+        field3 = ResultProperty.objects.get(display_field = 'subj_title3')
+
+        id_str = ''
+        
+        ids = self.subjectproperty_set.filter(Q(property=field1.field_type_id) | Q(property=field2.field_type_id) | Q(property=field3.field_type_id))
+        for i, id in enumerate(ids):
+            if i > 0:
+                id_str += ', '
+            id_str += id.property_value
+        return id_str
+
+    def descriptors(self):
+        field1 = ResultProperty.objects.get(display_field = 'subj_desc')
+
+        desc_str = ''
+        
+        descs = self.subjectproperty_set.filter(property=field1.field_type_id)
+        for i, desc in enumerate(descs):
+            if i > 0:
+                desc_str += '; '
+            desc_str += desc.property_value
+        return desc_str
+
+        
+    class Meta:
+        verbose_name = 'Object'    
+        verbose_name_plural = 'Objects' 
         
 """Descriptive Properties of Subjects"""        
 class SubjectProperty(models.Model):
