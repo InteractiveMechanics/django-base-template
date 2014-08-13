@@ -82,9 +82,9 @@ class SubjectAdmin(admin.ModelAdmin):
                     
                     ########### PROBLEM: THIS IS VERY DEPENDENT ON THE DATA AND UNUM REMAINING AT ID 23
                     # if search is for U Number, remove any non-numbers at the beginning
-                    if terms[0] == 23:
+                    if terms[0] == '23':
                         d = re.search("\d", terms[2])
-                        if d:
+                        if d is not None:
                             start_index = d.start()
                             terms[2] = terms[2][start_index:]
                     ###########
