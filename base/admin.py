@@ -88,7 +88,7 @@ class SubjectAdmin(admin.ModelAdmin):
                             start_index = d.start()
                             terms[2] = terms[2][start_index:]
                     ###########
-
+                    
                     # create current query
                     kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
                     
