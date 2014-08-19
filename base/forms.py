@@ -1,5 +1,5 @@
 from django import forms
-from haystack.forms import ModelSearchForm
+from haystack.forms import ModelSearchForm, SearchForm
 from base.models import DescriptiveProperty
 from haystack.inputs import Raw
 from haystack.query import SearchQuerySet
@@ -12,8 +12,15 @@ OPERATOR = (
 
 SEARCH_TYPE = (
     ('contains', 'contains'),
-    ('equals', 'equals'),
+    ('like', 'like'),
+    ('exact', 'equals'),
     ('startswith', 'starts with'),
+    ('endswith', 'ends with'),
+    ('blank', 'is blank'),
+    ('gt', 'is greater than'),
+    ('gte', 'is greater than or equal to'),
+    ('lt', 'is less than'),
+    ('lte', 'is less than or equal to'),
 )
 
 class PropertySelectorSearchForm(ModelSearchForm):
@@ -41,8 +48,37 @@ class PropertySelectorSearchForm(ModelSearchForm):
         
         return sqs
         
-class AdvancedSearchForm(forms.Form):
-    operators = forms.ChoiceField(required=False, choices=OPERATOR)
+class AdvancedSearchForm(SearchForm):
     property = forms.ModelChoiceField(required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
     search_type = forms.ChoiceField(required=False, choices=SEARCH_TYPE)
-    prop_value = forms.CharField(required=False)
+    q = forms.CharField(required=False)
+    
+    def search(self):
+        
+        if not self.is_valid():
+            return self.no_query_found()
+
+        prop = 'content'
+        type = 'contains' #give this a value just in case
+            
+        # A property was selected
+        if self.cleaned_data['property'] != None:
+            prop = 'prop_'+ str(self.cleaned_data['property'].id)
+            co
+        # Determine the type of search
+        if self.cleaned_data['search_type'] == 'like':
+            pass #FIX THIS
+        
+        elif self.cleaned_data['search_type'] == 'blank':
+            pass #FIX THIS
+            
+        elif self.cleaned_data['search_type'] == 'endswith':
+            pass #FIX THIS
+            
+        else:
+            type = self.cleaned_data['search_type']
+            
+        kwargs = {str('%s__%s' % (prop, type)) : str('%s' % self.cleaned_data['q'])}
+        sqs = SearchQuerySet().filter(**kwargs)
+
+        return sqs

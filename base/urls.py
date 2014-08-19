@@ -1,14 +1,14 @@
 """urlconf for the base application"""
 
 from django.conf.urls import url, patterns, include
-from forms import PropertySelectorSearchForm
+from forms import AdvancedSearchForm
 from haystack.views import SearchView, search_view_factory
 
 urlpatterns = patterns('base.views',
     url(r'^$', 'home', name='home'),
     url(r'^map/', 'map', name='map'),
     url(r'^search/', search_view_factory(
-        form_class = PropertySelectorSearchForm
+        form_class = AdvancedSearchForm
     ), name='haystack_search'),
     # ex: /ur.iaas.upenn.edu/subject/5/
     url(r'^subject/(?P<subject_id>\d+)/$', 'subjectdetail', name='subjectdetail'),

@@ -74,9 +74,12 @@ def get_result_details(fields):
     for field, value in fields.items():
         if field.startswith('prop_'):
             prop_num = field[5:]
-            prop = DescriptiveProperty.objects.get(id=prop_num)
-            row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'
-            rowhtml += row
+            try:
+                prop = DescriptiveProperty.objects.get(id=prop_num)
+                row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'
+                rowhtml += row
+            except DescriptiveProperty.DoesNotExist:
+                pass
             
     return rowhtml
     
