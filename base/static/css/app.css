@@ -18,6 +18,7 @@ h2,
 h3,
 h4,
 h5,
+h5,
 h6 {
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 700;
@@ -165,6 +166,9 @@ h6 {
 footer {
     padding: 50px 0;
     background-color: #f8f8f8;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 p.copyright {
