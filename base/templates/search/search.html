@@ -6,42 +6,48 @@
 <!-- End Metadata -->
 
 {% block content %}
-  <div class="container">
-    <div class="basic-page-content">
-      <form method="get" action=".">
-        <div class="well">
-          <h2>Advanced Search</h2>
-            <ul>
+
+  <form method="get" action=".">
+
+    <!-- Advanced Search Box -->
+    <div class="banner">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <h2 class="text-center">Advanced Search</h2>
+            <hr class="intro-divider">
+            <ul class="list-inline center-block text-center">
               {{ form.as_ul }}
               <li>
                 <input type="submit" value="Search">
               </li>
             </ul>
+          </div>
         </div>
-      
-        {% if query or page.object_list %}
-        <h2 style="text-align:center">Results</h2>
-        
-          {% for result in page.object_list %}
-            {% include 'search/_result_object.html' %}
-          {% empty %}
-            <p>No results found.</p>
-          {% endfor %}
+      </div>
+    </div> <!-- End Advanced Search Box -->
+    
+    {% if query or page.object_list %}
+    <h2 style="text-align:center">Results</h2>
+    
+      {% for result in page.object_list %}
+        {% include 'search/_result_object.html' %}
+      {% empty %}
+        <p>No results found.</p>
+      {% endfor %}
 
-          {% if page.has_previous or page.has_next %}
-            <div>
-              {% if page.has_previous %}<a href="?{% get_query_params request.GET %}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-              |
-              {% if page.has_next %}<a href="?{% get_query_params request.GET %}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-            </div>
-          {% endif %}
-        
-        {% else %}
-          {# Show some example queries to run, maybe query syntax, something else? #}
-        {% endif %}
-      </form>
-    </div>
-  </div>
+      {% if page.has_previous or page.has_next %}
+        <div>
+          {% if page.has_previous %}<a href="?{% get_query_params request.GET %}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+          |
+          {% if page.has_next %}<a href="?{% get_query_params request.GET %}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+        </div>
+      {% endif %}
+    
+    {% else %}
+      {# Show some example queries to run, maybe query syntax, something else? #}
+    {% endif %}
+  </form>
 {% endblock %}
 
 <!-- Search Unique JS -->

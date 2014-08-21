@@ -14,9 +14,9 @@ SEARCH_TYPE = (
     ('contains', 'contains'),
     ('like', 'like'),
     ('exact', 'equals'),
+    ('blank', 'is blank'),
     ('startswith', 'starts with'),
     ('endswith', 'ends with'),
-    ('blank', 'is blank'),
     ('gt', 'is greater than'),
     ('gte', 'is greater than or equal to'),
     ('lt', 'is less than'),
@@ -50,8 +50,12 @@ class PropertySelectorSearchForm(ModelSearchForm):
         
 class AdvancedSearchForm(SearchForm):
     property = forms.ModelChoiceField(required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
-    search_type = forms.ChoiceField(required=False, choices=SEARCH_TYPE)
-    q = forms.CharField(required=False)
+    search_type = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
+    q = forms.CharField(label='Search Terms', required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super(AdvancedSearchForm, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = ['property', 'search_type', 'q']
     
     def search(self):
         
@@ -64,18 +68,75 @@ class AdvancedSearchForm(SearchForm):
         # A property was selected
         if self.cleaned_data['property'] != None:
             prop = 'prop_'+ str(self.cleaned_data['property'].id)
-            co
-        # Determine the type of search
-        if self.cleaned_data['search_type'] == 'like':
-            pass #FIX THIS
-        
-        elif self.cleaned_data['search_type'] == 'blank':
-            pass #FIX THIS
             
-        elif self.cleaned_data['search_type'] == 'endswith':
-            pass #FIX THIS
+        # Determine the type of search
+        
+        # LIKE -> 'a*b' or 'a?b'
+        if self.cleaned_data['search_type'] == 'like':
+        
+            keywords = self.cleaned_data['q'].split()
+            
+            if keywords:
+                query_text = '('
+            
+                for i, word in enumerate(keywords):
+                    
+                    if i > 0: 
+                        query_text += ' AND '
+                    query_text += word
+                
+                query_text += ')'
+                
+                kwargs = {str('%s' % prop) : Raw(query_text)}
+                sqs = SearchQuerySet().filter(**kwargs)
+                
+                return sqs
+            
+            else:
+                return SearchQuerySet().all()
+        
+        # BLANK -> returns all subjects that don't have a value for given property
+        elif self.cleaned_data['search_type'] == 'blank':
+            
+            #if property is Any, then return all b/c query asks for doc with 'any' blank properties
+            if self.cleaned_data['property'] == None:
+                return SearchQuerySet().all()
+            
+            kwargs = {str('-%s' % prop) : Raw('[* TO *]')}
+            sqs = SearchQuerySet().filter(**kwargs)
+            
+            return sqs
+            
+        # ENDSWITH -> '*abc'
+        if self.cleaned_data['search_type'] == 'endswith':
+        
+            keywords = self.cleaned_data['q'].split()
+            
+            if keywords:
+                query_text = '('
+            
+                for i, word in enumerate(keywords):
+                    
+                    if i > 0: 
+                        query_text += ' AND '
+                    query_text += ('*' + word)
+                
+                query_text += ')'
+                
+                kwargs = {str('%s' % prop) : Raw(query_text)}
+                sqs = SearchQuerySet().filter(**kwargs)
+                
+                return sqs
+            
+            else:
+                return SearchQuerySet().all()
             
         else:
+        
+            # no search terms given, so return everything
+            if self.cleaned_data['q'] == '':
+                return SearchQuerySet().all()
+                
             type = self.cleaned_data['search_type']
             
         kwargs = {str('%s__%s' % (prop, type)) : str('%s' % self.cleaned_data['q'])}
