@@ -45,7 +45,10 @@ def load_result_display_fields(fields, key):
         if prop.field_type:
             prop_id = prop.field_type.id
             p = 'prop_' + str(prop_id)
-            prop_list.append(str(fields.get(p, '')))
+            try:
+                prop_list.append(fields.get(p, ''))
+            except TypeError:
+                prop_list.append(str(fields.get(p, '')))
     
     prop_str = ''
     
@@ -76,7 +79,10 @@ def get_result_details(fields):
             prop_num = field[5:]
             try:
                 prop = DescriptiveProperty.objects.get(id=prop_num)
-                row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'
+                try:
+                    row = '<tr><td>' + prop.property + '</td><td>' + value + '</td></tr>'
+                except TypeError:
+                    row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'              
                 rowhtml += row
             except DescriptiveProperty.DoesNotExist:
                 pass

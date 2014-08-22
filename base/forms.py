@@ -12,11 +12,17 @@ OPERATOR = (
 
 SEARCH_TYPE = (
     ('contains', 'contains'),
+    ('!contains', 'does not contain'),
     ('like', 'like'),
+    ('!like', 'is not like'),
     ('exact', 'equals'),
+    ('!exact', 'does not equal'),
     ('blank', 'is blank'),
+    ('!blank', 'is not blank'),
     ('startswith', 'starts with'),
+    ('!startswith', 'does not start with'),
     ('endswith', 'ends with'),
+    ('!endswith', 'does not end with'),
     ('gt', 'is greater than'),
     ('gte', 'is greater than or equal to'),
     ('lt', 'is less than'),
@@ -63,16 +69,23 @@ class AdvancedSearchForm(SearchForm):
             return self.no_query_found()
 
         prop = 'content'
-        type = 'contains' #give this a value just in case
+        type = self.cleaned_data['search_type']
+        negate = False
+        kwargs = {}
             
         # A property was selected
         if self.cleaned_data['property'] != None:
             prop = 'prop_'+ str(self.cleaned_data['property'].id)
             
+        # Check for not
+        if type.startswith('!'):
+            negate = True
+            type = type[1:]
+            
         # Determine the type of search
         
         # LIKE -> 'a*b' or 'a?b'
-        if self.cleaned_data['search_type'] == 'like':
+        if type == 'like':
         
             keywords = self.cleaned_data['q'].split()
             
@@ -88,27 +101,26 @@ class AdvancedSearchForm(SearchForm):
                 query_text += ')'
                 
                 kwargs = {str('%s' % prop) : Raw(query_text)}
-                sqs = SearchQuerySet().filter(**kwargs)
-                
-                return sqs
             
             else:
                 return SearchQuerySet().all()
         
         # BLANK -> returns all subjects that don't have a value for given property
-        elif self.cleaned_data['search_type'] == 'blank':
+        elif type == 'blank':
             
             #if property is Any, then return all b/c query asks for doc with 'any' blank properties
             if self.cleaned_data['property'] == None:
                 return SearchQuerySet().all()
-            
-            kwargs = {str('-%s' % prop) : Raw('[* TO *]')}
-            sqs = SearchQuerySet().filter(**kwargs)
-            
-            return sqs
+                
+            # BLANK is a special case negation (essentially a double negative), so handle differently
+            if negate:
+                kwargs = {str('%s' % prop) : Raw('[1 TO *]')}
+                negate = False
+            else:
+                kwargs = {str('-%s' % prop) : Raw('[* TO *]')}
             
         # ENDSWITH -> '*abc'
-        if self.cleaned_data['search_type'] == 'endswith':
+        elif type == 'endswith':
         
             keywords = self.cleaned_data['q'].split()
             
@@ -124,10 +136,7 @@ class AdvancedSearchForm(SearchForm):
                 query_text += ')'
                 
                 kwargs = {str('%s' % prop) : Raw(query_text)}
-                sqs = SearchQuerySet().filter(**kwargs)
                 
-                return sqs
-            
             else:
                 return SearchQuerySet().all()
             
@@ -136,10 +145,12 @@ class AdvancedSearchForm(SearchForm):
             # no search terms given, so return everything
             if self.cleaned_data['q'] == '':
                 return SearchQuerySet().all()
-                
-            type = self.cleaned_data['search_type']
             
-        kwargs = {str('%s__%s' % (prop, type)) : str('%s' % self.cleaned_data['q'])}
-        sqs = SearchQuerySet().filter(**kwargs)
+            kwargs = {str('%s__%s' % (prop, type)) : str('%s' % self.cleaned_data['q'])}
+       
+        if negate:
+            sqs = SearchQuerySet().exclude(**kwargs)
+        else:
+            sqs = SearchQuerySet().filter(**kwargs)
 
         return sqs
