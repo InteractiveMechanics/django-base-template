@@ -16,4 +16,5 @@ urlpatterns = patterns('base.views',
     url(r'^(?P<personorg_id>\d+)/$', 'personorgdetail', name='personorgdetail'),
     # ex: /ur.iaas.upenn.edu/media/5/
     url(r'^media/(?P<media_id>\d+)/$', 'mediadetail', name='mediadetail'),
+    url(r'^search_help/', 'search_help', name='search_help'),
 )

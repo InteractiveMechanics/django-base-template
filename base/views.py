@@ -33,3 +33,7 @@ def personorgdetail(request, personorg_id):
     
     personorg = get_object_or_404(PersonOrg, pk=personorg_id)
     return render(request, 'base/personorgdetail.html', {'personorg': personorg})
+    
+def search_help(request):
+
+    return render(request, 'base/search_help.html')

@@ -37,7 +37,7 @@ def load_result_display_fields(fields, key):
             if title.field_type:
                 p = 'prop_' + str(title.field_type.id)
                 property_name = title.field_type.property
-                value = str(fields.get(p, ''))
+                value = fields.get(p, '')
                 if value != '' :
                     prop_list.append(property_name + ' : ' + str(fields.get(p, '')))
     else:

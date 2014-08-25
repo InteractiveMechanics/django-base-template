@@ -3,6 +3,7 @@ from haystack.forms import ModelSearchForm, SearchForm
 from base.models import DescriptiveProperty
 from haystack.inputs import Raw
 from haystack.query import SearchQuerySet
+import re
 
 OPERATOR = (
     ('and', 'AND'),
@@ -70,6 +71,7 @@ class AdvancedSearchForm(SearchForm):
 
         prop = 'content'
         type = self.cleaned_data['search_type']
+        query = self.cleaned_data['q']
         negate = False
         kwargs = {}
             
@@ -83,11 +85,52 @@ class AdvancedSearchForm(SearchForm):
             type = type[1:]
             
         # Determine the type of search
+            
+        # CONTAINS -> fuzzy search and special case misspellings
+        if type == 'contains':
+        
+            add_or = False
+        
+            query_text = '('
+        
+            # special misspellings
+            if prop == 'prop_23':
+                #if doing a contains search for u number, get first instance of numbers followed by a 0 or 1 letter
+                match = re.search(r'(\d+[a-zA-Z]?)', query)
+                if match:
+                    query = match.group(0)
+                    query_text += ('' + query + '?')
+                    add_or = True
+            else:
+                query = re.sub(r'(\s*)([uU]\s*?\.?\s*)(\d+)([a-zA-Z]*)', r'\1u* *\3*', query)
+                query = re.sub(r'(\s*)([pP][gG]\s*?\.?\s*)(\w+)', r'\1pg* *\3*', query)
+            
+            keywords = query.split()
+            
+            if keywords:
+                
+                if add_or:
+                    query_text += ' OR '
+            
+                query_text += '('
+            
+                for i, word in enumerate(keywords):
+                    
+                    if i > 0: 
+                        query_text += ' AND '
+                    query_text += word
+                
+                query_text += '))'
+                
+                kwargs = {str('%s' % prop) : Raw(query_text)}
+            
+            else:
+                return SearchQuerySet().all()            
         
         # LIKE -> 'a*b' or 'a?b'
-        if type == 'like':
+        elif type == 'like':
         
-            keywords = self.cleaned_data['q'].split()
+            keywords = query.split()
             
             if keywords:
                 query_text = '('
@@ -122,7 +165,7 @@ class AdvancedSearchForm(SearchForm):
         # ENDSWITH -> '*abc'
         elif type == 'endswith':
         
-            keywords = self.cleaned_data['q'].split()
+            keywords = query.split()
             
             if keywords:
                 query_text = '('
@@ -143,10 +186,10 @@ class AdvancedSearchForm(SearchForm):
         else:
         
             # no search terms given, so return everything
-            if self.cleaned_data['q'] == '':
+            if query == '':
                 return SearchQuerySet().all()
             
-            kwargs = {str('%s__%s' % (prop, type)) : str('%s' % self.cleaned_data['q'])}
+            kwargs = {str('%s__%s' % (prop, type)) : str('%s' % query)}
        
         if negate:
             sqs = SearchQuerySet().exclude(**kwargs)

@@ -24,7 +24,7 @@ h6 {
     font-weight: 700;
 }
 
-.lead {
+.lead, .lead > li {
     font-size: 18px;
     font-weight: 400;
 }
