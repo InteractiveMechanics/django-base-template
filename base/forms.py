@@ -86,7 +86,7 @@ class AdvancedSearchForm(SearchForm):
             
         # Determine the type of search
             
-        # CONTAINS -> fuzzy search and special case misspellings
+        # CONTAINS -> special case misspellings
         if type == 'contains':
         
             add_or = False

@@ -38,6 +38,11 @@ h6 {
     background-size: cover;
 }
 
+.intro-header a {
+    color: #f8f8f8;
+    text-shadow: 2px 2px 3px rgba(0,0,0,0.6);
+}
+
 .intro-message {
     position: relative;
     padding-top: 20%;
