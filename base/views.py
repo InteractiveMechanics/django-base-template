@@ -1,7 +1,10 @@
 """ Views for the base application """
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, render_to_response
 from base.models import FeaturedImgs, Subject, Media, PersonOrg
+from haystack.views import SearchView
+from base.forms import AdvancedSearchForm
+from django.forms.formsets import formset_factory
 
 def home(request):
     """ Default view for the root """

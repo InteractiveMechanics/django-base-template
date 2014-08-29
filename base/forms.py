@@ -4,11 +4,11 @@ from base.models import DescriptiveProperty
 from haystack.inputs import Raw
 from haystack.query import SearchQuerySet
 import re
+from haystack.query import SQ
 
 OPERATOR = (
     ('and', 'AND'),
     ('or', 'OR'),
-    ('not', 'NOT'),
 )
 
 SEARCH_TYPE = (
@@ -56,144 +56,171 @@ class PropertySelectorSearchForm(ModelSearchForm):
         return sqs
         
 class AdvancedSearchForm(SearchForm):
-    property = forms.ModelChoiceField(required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    property = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
     search_type = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
-    q = forms.CharField(label='Search Terms', required=False)
-    
-    def __init__(self, *args, **kwargs):
-        super(AdvancedSearchForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['property', 'search_type', 'q']
-    
+    q = forms.CharField(label='', required=False)
+    op = forms.ChoiceField(label='', required=False, choices=OPERATOR)
+    property2 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    search_type2 = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
+    q2 = forms.CharField(label='', required=False)
+    op2 = forms.ChoiceField(label='', required=False, choices=OPERATOR)
+    property3 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    search_type3 = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
+    q3 = forms.CharField(label='', required=False)
+        
     def search(self):
         
         if not self.is_valid():
             return self.no_query_found()
+            
+        prop_list = [self.cleaned_data['property'], self.cleaned_data['property2'], self.cleaned_data['property3']]
+        type_list = [self.cleaned_data['search_type'], self.cleaned_data['search_type2'], self.cleaned_data['search_type3']]
+        query_list = [self.cleaned_data['q'], self.cleaned_data['q2'], self.cleaned_data['q3']]
+        op_list = [self.cleaned_data['op'], self.cleaned_data['op2']]
+        
+        # query object for building full advanced query
+        sq = SQ()
 
-        prop = 'content'
-        type = self.cleaned_data['search_type']
-        query = self.cleaned_data['q']
-        negate = False
-        kwargs = {}
-            
-        # A property was selected
-        if self.cleaned_data['property'] != None:
-            prop = 'prop_'+ str(self.cleaned_data['property'].id)
-            
-        # Check for not
-        if type.startswith('!'):
-            negate = True
-            type = type[1:]
-            
-        # Determine the type of search
-            
-        # CONTAINS -> special case misspellings
-        if type == 'contains':
+        for j in range(0, len(prop_list)):
         
-            add_or = False
-        
-            query_text = '('
-        
-            # special misspellings
-            if prop == 'prop_23':
-                #if doing a contains search for u number, get first instance of numbers followed by a 0 or 1 letter
-                match = re.search(r'(\d+[a-zA-Z]?)', query)
-                if match:
-                    query = match.group(0)
-                    query_text += ('' + query + '?')
-                    add_or = True
-            else:
-                query = re.sub(r'(\s*)([uU]\s*?\.?\s*)(\d+)([a-zA-Z]*)', r'\1u* *\3*', query)
-                query = re.sub(r'(\s*)([pP][gG]\s*?\.?\s*)(\w+)', r'\1pg* *\3*', query)
+            prop = 'content'
+            type = type_list[j]
+            query = query_list[j]
+            operator = ''            
+            negate = False
+            kwargs = {}
+
+            # Check for operator
+            if j > 0:
+                operator = op_list[j - 1]
             
-            keywords = query.split()
+            # Check for not
+            if type.startswith('!'):
+                negate = True
+                type = type[1:]            
             
-            if keywords:
+            # if this row of query builder is blank, skip
+            if (query == '') and (type != 'blank'):
+                pass
                 
-                if add_or:
-                    query_text += ' OR '
-            
-                query_text += '('
-            
-                for i, word in enumerate(keywords):
-                    
-                    if i > 0: 
-                        query_text += ' AND '
-                    query_text += word
+            # Check if a property was selected
+            if prop_list[j] != None:
+                prop = 'prop_'+ str(prop_list[j].id)
                 
-                query_text += '))'
+            # Check if search type was selected
+            if type == '':
+                type = 'contains'               
                 
-                kwargs = {str('%s' % prop) : Raw(query_text)}
+            # Determine the type of search
+                
+            # CONTAINS -> special case misspellings
+            if type == 'contains':
             
-            else:
-                return SearchQuerySet().all()            
-        
-        # LIKE -> 'a*b' or 'a?b'
-        elif type == 'like':
-        
-            keywords = query.split()
+                add_or = False
             
-            if keywords:
                 query_text = '('
             
-                for i, word in enumerate(keywords):
+                # special misspellings
+                if prop == 'prop_23':
+                    #if doing a contains search for u number, get first instance of numbers followed by a 0 or 1 letter
+                    match = re.search(r'(\d+[a-zA-Z]?)', query)
+                    if match:
+                        query = match.group(0)
+                        query_text += ('' + query + '?')
+                        add_or = True
+                else:
+                    query = re.sub(r'(\s*)([uU]\s*?\.?\s*)(\d+)([a-zA-Z]*)', r'\1u* *\3*', query)
+                    query = re.sub(r'(\s*)([pP][gG]\s*?[\./]?\s*)(\w+)', r'\1pg* *\3*', query)
+                
+                keywords = query.split()
+                
+                if keywords:
                     
-                    if i > 0: 
-                        query_text += ' AND '
-                    query_text += word
+                    if add_or:
+                        query_text += ' OR '
                 
-                query_text += ')'
+                    query_text += '('
                 
-                kwargs = {str('%s' % prop) : Raw(query_text)}
-            
-            else:
-                return SearchQuerySet().all()
-        
-        # BLANK -> returns all subjects that don't have a value for given property
-        elif type == 'blank':
-            
-            #if property is Any, then return all b/c query asks for doc with 'any' blank properties
-            if self.cleaned_data['property'] == None:
-                return SearchQuerySet().all()
-                
-            # BLANK is a special case negation (essentially a double negative), so handle differently
-            if negate:
-                kwargs = {str('%s' % prop) : Raw('[1 TO *]')}
-                negate = False
-            else:
-                kwargs = {str('-%s' % prop) : Raw('[* TO *]')}
-            
-        # ENDSWITH -> '*abc'
-        elif type == 'endswith':
-        
-            keywords = query.split()
-            
-            if keywords:
-                query_text = '('
-            
-                for i, word in enumerate(keywords):
+                    for i, word in enumerate(keywords):
+                        
+                        if i > 0: 
+                            query_text += ' AND '
+                        query_text += word
                     
-                    if i > 0: 
-                        query_text += ' AND '
-                    query_text += ('*' + word)
+                    query_text += '))'
+                    
+                    kwargs = {str('%s' % prop) : Raw(query_text)}            
+            
+            # LIKE -> 'a*b' or 'a?b'
+            elif type == 'like':
+            
+                keywords = query.split()
                 
-                query_text += ')'
+                if keywords:
+                    query_text = '('
                 
-                kwargs = {str('%s' % prop) : Raw(query_text)}
+                    for i, word in enumerate(keywords):
+                        
+                        if i > 0: 
+                            query_text += ' AND '
+                        query_text += word
+                    
+                    query_text += ')'
+                    
+                    kwargs = {str('%s' % prop) : Raw(query_text)}
+            
+            # BLANK -> returns all subjects that don't have a value for given property
+            elif type == 'blank':
                 
+                #if property is Any, then return all b/c query asks for doc with 'any' blank properties
+                if self.cleaned_data['property'] == None:
+                    pass
+                    
+                # BLANK is a special case negation (essentially a double negative), so handle differently
+                if negate:
+                    kwargs = {str('%s' % prop) : Raw('[1 TO *]')}
+                    negate = False
+                else:
+                    kwargs = {str('-%s' % prop) : Raw('[* TO *]')}
+                
+            # ENDSWITH -> '*abc'
+            elif type == 'endswith':
+            
+                keywords = query.split()
+                
+                if keywords:
+                    query_text = '('
+                
+                    for i, word in enumerate(keywords):
+                        
+                        if i > 0: 
+                            query_text += ' AND '
+                        query_text += ('*' + word)
+                    
+                    query_text += ')'
+                    
+                    kwargs = {str('%s' % prop) : Raw(query_text)}
+                                    
             else:
-                return SearchQuerySet().all()
+                
+                kwargs = {str('%s__%s' % (prop, type)) : str('%s' % query)}
             
-        else:
-        
-            # no search terms given, so return everything
-            if query == '':
-                return SearchQuerySet().all()
-            
-            kwargs = {str('%s__%s' % (prop, type)) : str('%s' % query)}
-       
-        if negate:
-            sqs = SearchQuerySet().exclude(**kwargs)
-        else:
-            sqs = SearchQuerySet().filter(**kwargs)
+            if operator == 'or':
+                if negate:
+                    sq = sq | ~SQ(**kwargs)
+                else:
+                    sq = sq | SQ(**kwargs)
+            elif operator == 'and':
+                if negate:
+                    sq = sq & ~SQ(**kwargs)
+                else:
+                    sq = sq & SQ(**kwargs)
+            else:
+                if negate:
+                    sq = ~SQ(**kwargs)
+                else:
+                    sq = SQ(**kwargs)                
 
+        sqs = SearchQuerySet().filter(sq)                
+ 
         return sqs
