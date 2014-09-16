@@ -115,6 +115,13 @@
                     </a></li>
                   {# {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a>#}
                 {% endif %}
+
+                {% if request|has_prev:object_id %}
+                <li>
+                    {% url 'admin:base_subject_change' request|get_prev:object_id as prev_url %}
+                    <a href="{% add_preserved_filters prev_url %}" class="historylink"><i class="icon-chevron-left"></i> Previous</a>
+                </li>
+                {% endif %}
                 
                 {% if request|has_next:object_id %}
                 <li>

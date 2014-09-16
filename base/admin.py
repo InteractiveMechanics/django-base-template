@@ -4,12 +4,13 @@ from base.forms import AdvancedSearchForm
 from django.forms.formsets import formset_factory
 from django.db.models import Q
 import re
+from django.forms import Textarea
 
-class PropertyFilter(admin.SimpleListFilter):
+class StatusFilter(admin.SimpleListFilter):
 
-    title = 'property'
+    title = 'Status'
     
-    parameter_name = 'prop'
+    parameter_name = 'status'
     
     def lookups(self, request, model_admin):
         properties = tuple((prop.id, prop.property) for prop in DescriptiveProperty.objects.all())    
@@ -22,17 +23,44 @@ class PropertyFilter(admin.SimpleListFilter):
 
 class SubjectPropertyInline(admin.TabularInline):
     model = SubjectProperty
-    extra = 3
-    fields = ['property', 'property_value', 'last_mod_by']
+    fields = ['property', 'property_value', 'notes', 'last_mod_by']
+    readonly_fields = ('last_mod_by',)    
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
+    
+class MediaSubjectRelationsInline(admin.TabularInline):
+    model = MediaSubjectRelations
+    fields = ['media', 'relation_type', 'notes', 'last_mod_by']
+    readonly_fields = ('last_mod_by',)        
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
 
 class SubjectAdmin(admin.ModelAdmin):
     fields = ['title', 'notes', 'last_mod_by']
-    inlines = [SubjectPropertyInline]
+    readonly_fields = ('last_mod_by',)    
+    inlines = [SubjectPropertyInline, MediaSubjectRelationsInline]
     search_fields = ['title']
-    list_display = ('title', 'identifiers', 'descriptors')
+    list_display = ('id1', 'id2', 'id3', 'desc1', 'desc2', 'desc3')
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
     
-    change_list_template = 'admin/base/change_list.html'
+    change_list_template = 'admin/base/subject/change_list.html'
     change_form_template = 'admin/base/change_form.html'
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+        
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            if isinstance(instance, SubjectProperty) or isinstance(instance, MediaSubjectRelations): #Check if it is the correct type of inline
+                instance.last_mod_by = request.user            
+                instance.save()
     
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
@@ -55,9 +83,11 @@ class SubjectAdmin(admin.ModelAdmin):
         if len(query_rows) > 0:
                    
             for i, row in enumerate(query_rows):
-               
+            
                 negate = False # whether the query will be negated
                 connector = '' # AND/OR/NOTHING
+                kwargs = {}
+                current_query = Q()
                 
                 terms = row.split('___')                
                 
@@ -80,6 +110,10 @@ class SubjectAdmin(admin.ModelAdmin):
 
                     # CURRENT TERMS FORMAT: (PROPERTY, SEARCH_TYPE, [SEARCH_KEYWORDS])
                     
+                    # if this row is blank, than skip
+                    if (terms[2] == '') and (terms[1] != 'blank'):
+                        continue
+                    
                     ########### PROBLEM: THIS IS VERY DEPENDENT ON THE DATA AND UNUM REMAINING AT ID 23
                     # if search is for U Number, remove any non-numbers at the beginning
                     if terms[0] == '23':
@@ -90,13 +124,34 @@ class SubjectAdmin(admin.ModelAdmin):
                     ###########
                     
                     # create current query
-                    kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
-                    
-                    # use negation
-                    if negate:
-                        current_query = Q(Q(subjectproperty__property = terms[0]) & ~Q(**kwargs))
+                    if terms[1] == 'blank':
+                        #if property is Any, then return all b/c query asks for doc with 'any' blank properties
+                        if terms[0] == '0':
+                            continue
+                            
+                        # BLANK is a special case negation (essentially a double negative), so handle differently
+                        if negate:
+                            current_query = Q(subjectproperty__property = terms[0])
+                        else:
+                            current_query = ~Q(subjectproperty__property = terms[0])
+                        
                     else:
-                        current_query = Q(Q(subjectproperty__property = terms[0]) & Q(**kwargs))
+                        kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
+
+                        # check if a property was selected and build the current query
+                        if terms[0] == '0':
+                            # if no property selected, than search thru ALL properties
+                            # use negation
+                            if negate:
+                                current_query = ~Q(**kwargs)
+                            else:
+                                current_query = Q(**kwargs)
+                        else:
+                            # use negation
+                            if negate:
+                                current_query = Q(Q(subjectproperty__property = terms[0]) & ~Q(**kwargs))
+                            else:
+                                current_query = Q(Q(subjectproperty__property = terms[0]) & Q(**kwargs))
                     
                     # modify query set
                     if connector == 'AND':
@@ -111,7 +166,7 @@ class SubjectAdmin(admin.ModelAdmin):
                             # if connector wasn't set, use &
                             queryset = queryset.filter(current_query)
             
-        return queryset.order_by('id'), use_distinct
+        return queryset.order_by('id').distinct(), use_distinct
 
 admin.site.register(Subject, SubjectAdmin)
 
@@ -144,9 +199,49 @@ admin.site.register(MediaType)
 admin.site.register(DescriptiveProperty)
 admin.site.register(MediaProperty)
 admin.site.register(FeaturedImgs)
-admin.site.register(SubjectProperty)
+
+class SubjectPropertyAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['subject', 'property', 'property_value', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['subject', 'property', 'property_value', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+
+admin.site.register(SubjectProperty, SubjectPropertyAdmin)
 admin.site.register(ResultProperty)
 admin.site.register(Relations)
-admin.site.register(MediaSubjectRelations)
+
+class MediaSubjectRelationsAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['media', 'subject', 'relation_type', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['media', 'subject', 'relation_type', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+
+admin.site.register(MediaSubjectRelations, MediaSubjectRelationsAdmin)
 admin.site.register(MediaPersonOrgRelations)
 admin.site.register(PersonOrgProperty)
+
+class StatusAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['status', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['status', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+    
+admin.site.register(Status, StatusAdmin)

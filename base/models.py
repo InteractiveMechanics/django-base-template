@@ -123,7 +123,7 @@ class Subject(models.Model):
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)
+    last_mod_by = models.ForeignKey(User, blank = True)
     
     def __unicode__(self):
         return self.title
@@ -134,6 +134,44 @@ class Subject(models.Model):
     def get_type(self):
         return 'subject';
         
+    def admin_column(self, column):
+        field = ResultProperty.objects.get(display_field = column)
+        
+        id_str = ''
+        
+        ids = self.subjectproperty_set.filter(property=field.field_type_id)
+        if ids:
+            for i, id in enumerate(ids):
+                if i > 0:
+                    id_str += ', '
+                id_str += id.property_value
+        return id_str     
+        
+    def admin_column_name(column):
+        field = ResultProperty.objects.get(display_field = column)
+        if field:
+            return field.field_type
+        return ''
+    
+    def id1(self):
+        return self.admin_column('subj_title1')
+    id1.short_description = admin_column_name('subj_title1')
+    def id2(self):
+        return self.admin_column('subj_title2')
+    id2.short_description = admin_column_name('subj_title2')
+    def id3(self):
+        return self.admin_column('subj_title3')
+    id3.short_description = admin_column_name('subj_title3')
+    def desc1(self):
+        return self.admin_column('subj_desc')
+    desc1.short_description = admin_column_name('subj_desc')
+    def desc2(self):
+        return self.admin_column('subj_desc2')
+    desc2.short_description = admin_column_name('subj_desc2')
+    def desc3(self):
+        return self.admin_column('subj_desc3')
+    desc3.short_description = admin_column_name('subj_desc3')
+    
     def identifiers(self):
         field1 = ResultProperty.objects.get(display_field = 'subj_title1')
         field2 = ResultProperty.objects.get(display_field = 'subj_title2')
@@ -149,7 +187,7 @@ class Subject(models.Model):
         return id_str
 
     def descriptors(self):
-        field1 = ResultProperty.objects.get(display_field = 'subj_desc')
+        field1 = ResultProperty.objects.get(display_field = 'subj_desc1')
 
         desc_str = ''
         
@@ -173,11 +211,11 @@ class SubjectProperty(models.Model):
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)
+    last_mod_by = models.ForeignKey(User, blank = True)
 
     class Meta:
-        verbose_name = 'Subject Property'    
-        verbose_name_plural = 'Subject Properties'    
+        verbose_name = 'Object Property'    
+        verbose_name_plural = 'Object Properties'    
 
     def __unicode__(self):
         return self.property_value
@@ -230,10 +268,14 @@ class MediaSubjectRelations(models.Model):
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)
+    last_mod_by = models.ForeignKey(User, blank = True)
 
     def __unicode__(self):
         return self.media.title + ":" + self.subject.title
+        
+    class Meta:
+        verbose_name = 'Media-Object Relation'
+        verbose_name_plural = 'Media-Object Relations'
         
 """Related media and people"""
 class MediaPersonOrgRelations(models.Model):
@@ -286,3 +328,18 @@ class PersonOrgPersonOrgRelations(models.Model):
 
     def __unicode__(self):
         return self.person_org1.title + ":" + self.person_org2.title 
+        
+"""Object Status"""
+class Status(models.Model):
+    status = models.CharField(max_length = 60, blank = True)
+    notes = models.TextField(blank = True)
+    created = models.DateTimeField(auto_now = False, auto_now_add = True)
+    modified = models.DateTimeField(auto_now = True, auto_now_add = False)
+    last_mod_by = models.ForeignKey(User, blank = True)
+
+    def __unicode__(self):
+        return self.status 
+    
+    class Meta:
+        verbose_name = 'Status'    
+        verbose_name_plural = 'Status'

@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     
     # Third party admin app
     'suit',
+    'import_export',
     
     # Django contrib apps
     'django.contrib.auth',

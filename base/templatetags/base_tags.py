@@ -3,9 +3,11 @@ from django.core.urlresolvers import reverse
 from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject
 from django.contrib.admin.templatetags.admin_list import result_list
 from django.db.models import Q
+import re
+from django.contrib.admin.views.main import (ALL_VAR, EMPTY_CHANGELIST_VALUE,
+    ORDER_VAR, PAGE_VAR, SEARCH_VAR)
 
 register = template.Library()
-register.inclusion_tag('admin/base/expanded_change_list_results.html')(result_list)
 
 @register.simple_tag
 def navactive(request, urls):
@@ -95,8 +97,9 @@ def get_img_thumb(object):
     
     if relation:
         first_rel = relation[0]
-        uri_prop = first_rel.media.mediaproperty_set.get(property__property = 'URI')
-        return uri_prop.property_value
+        uri_prop = first_rel.media.mediaproperty_set.filter(property__property = 'URI')
+        if uri_prop:
+            return uri_prop[0].property_value
     
     return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
     
@@ -106,8 +109,9 @@ def get_img_thumb_po(object):
     
     if relation:
         first_rel = relation[0]
-        uri_prop = first_rel.media.mediaproperty_set.get(property__property = 'URI')
-        return uri_prop.property_value
+        uri_prop = first_rel.media.mediaproperty_set.filter(property__property = 'URI')
+        if uri_prop:
+            return uri_prop[0].property_value
     
     return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
     
@@ -166,6 +170,8 @@ def advanced_obj_search(search_term):
            
             negate = False # whether the query will be negated
             connector = '' # AND/OR/NOTHING
+            kwargs = {}
+            current_query = Q()            
             
             terms = row.split('___')                
             
@@ -175,8 +181,8 @@ def advanced_obj_search(search_term):
                 # CURRENT TERMS FORMAT: ([&AND/OR,] PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
             
                 # remove and save the operator, if present
-                if terms[0].startswith('&'): 
-                    connector = terms[0][1:]
+                if terms[0].startswith('%26'): 
+                    connector = terms[0][3:]
                     terms = terms[1:]
 
                 # CURRENT TERMS FORMAT: (PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
@@ -187,16 +193,50 @@ def advanced_obj_search(search_term):
                     terms[1] = terms[1][4:]
 
                 # CURRENT TERMS FORMAT: (PROPERTY, SEARCH_TYPE, [SEARCH_KEYWORDS])
-
+                
+                # if this row is blank, than skip
+                if (terms[2] == '') and (terms[1] != 'blank'):
+                    continue
+                    
+                ########### PROBLEM: THIS IS VERY DEPENDENT ON THE DATA AND UNUM REMAINING AT ID 23
+                # if search is for U Number, remove any non-numbers at the beginning
+                if terms[0] == '23':
+                    d = re.search("\d", terms[2])
+                    if d is not None:
+                        start_index = d.start()
+                        terms[2] = terms[2][start_index:]
+                ###########
+                
                 # create current query
-                kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
+                if terms[1] == 'blank':
+                    #if property is Any, then return all b/c query asks for doc with 'any' blank properties
+                    if terms[0] == '0':
+                        continue
+                        
+                    # BLANK is a special case negation (essentially a double negative), so handle differently
+                    if negate:
+                        current_query = Q(subjectproperty__property = terms[0])
+                    else:
+                        current_query = ~Q(subjectproperty__property = terms[0])                   
                 
-                # use negation
-                if negate:
-                    current_query = Q(Q(subjectproperty__property = terms[0]) & ~Q(**kwargs))
                 else:
-                    current_query = Q(Q(subjectproperty__property = terms[0]) & Q(**kwargs))
-                
+                    kwargs = {str('subjectproperty__property_value__%s' % terms[1]) : str('%s' % terms[2])}
+
+                    # check if a property was selected and build the current query
+                    if terms[0] == '0':
+                        # if no property selected, than search thru ALL properties
+                        # use negation
+                        if negate:
+                            current_query = ~Q(**kwargs)
+                        else:
+                            current_query = Q(**kwargs)
+                    else:
+                        # use negation
+                        if negate:
+                            current_query = Q(Q(subjectproperty__property = terms[0]) & ~Q(**kwargs))
+                        else:
+                            current_query = Q(Q(subjectproperty__property = terms[0]) & Q(**kwargs))
+  
                 # modify query set
                 if connector == 'AND':
                     queryset = queryset.filter(current_query)
@@ -210,7 +250,7 @@ def advanced_obj_search(search_term):
                         # if connector wasn't set, use &
                         queryset = queryset.filter(current_query)
         
-    return queryset.order_by('id')
+    return queryset.order_by('id').distinct()
     
 @register.filter
 def get_next(value, arg):
@@ -245,5 +285,58 @@ def has_next(value, arg):
     return False
     
 @register.filter
+def get_prev(value, arg):
+
+    terms = value.GET.get('_changelist_filters')
+    
+    if terms:
+        queryset = advanced_obj_search(terms)
+    
+        remaining_objects = queryset.filter(id__lt=arg).order_by('-id')
+    
+        if remaining_objects:
+            return remaining_objects[0].id
+    
+    return ''
+    
+@register.filter
+def has_prev(value, arg):
+    
+    terms = value.GET.get('_changelist_filters')
+
+    if terms:
+        queryset = advanced_obj_search(terms)
+        
+        remaining_objects = queryset.filter(id__lt = arg).order_by('-id')[:1]
+        
+        if remaining_objects:
+            return True
+        else:
+            return True
+
+    return False
+    
+@register.filter
 def get_filter_param(value):
     return value.GET.get('_changelist_filters')
+    
+@register.simple_tag
+def get_params_list(query, index):
+    
+    params = re.split(r"\?{3}|_{3}", query)
+    
+    if len(params) >= index + 1:
+        return params[index]
+    
+    return ''
+    
+@register.inclusion_tag('admin/base/subject/search_form.html')
+def subject_search_form(cl):
+    """
+    Displays a search form for searching the list.
+    """
+    return {
+        'cl': cl,
+        'show_result_count': cl.result_count != cl.full_result_count,
+        'search_var': SEARCH_VAR
+    }

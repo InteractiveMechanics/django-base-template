@@ -101,7 +101,7 @@ class AdvancedSearchForm(SearchForm):
             
             # if this row of query builder is blank, skip
             if (query == '') and (type != 'blank'):
-                pass
+                continue
                 
             # Check if a property was selected
             if prop_list[j] != None:
@@ -174,7 +174,7 @@ class AdvancedSearchForm(SearchForm):
                 
                 #if property is Any, then return all b/c query asks for doc with 'any' blank properties
                 if self.cleaned_data['property'] == None:
-                    pass
+                    continue
                     
                 # BLANK is a special case negation (essentially a double negative), so handle differently
                 if negate:
