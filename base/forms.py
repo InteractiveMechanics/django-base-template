@@ -67,8 +67,13 @@ class AdvancedSearchForm(SearchForm):
     property3 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
     search_type3 = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
     q3 = forms.CharField(label='', required=False)
+    
+    def __init__(self, *args, **kwargs):
+        super(AdvancedSearchForm, self).__init__(*args, **kwargs)    
         
     def search(self):
+    
+        sqs = super(AdvancedSearchForm, self).search()    
         
         if not self.is_valid():
             return self.no_query_found()
@@ -221,6 +226,27 @@ class AdvancedSearchForm(SearchForm):
                 else:
                     sq = SQ(**kwargs)                
 
-        sqs = SearchQuerySet().filter(sq)                
+        sqs = sqs.filter_or(sq)                
  
+        return sqs
+        
+class AdvFacetedSearchForm(AdvancedSearchForm):
+    def __init__(self, *args, **kwargs):
+        self.selected_facets = kwargs.pop("selected_facets", [])
+        super(AdvFacetedSearchForm, self).__init__(*args, **kwargs)
+
+    def search(self):
+        sqs = super(AdvFacetedSearchForm, self).search()
+
+        # We need to process each facet to ensure that the field name and the
+        # value are quoted correctly and separately:
+        for facet in self.selected_facets:
+            if ":" not in facet:
+                continue
+
+            field, value = facet.split(":", 1)
+
+            if value:
+                sqs = sqs.narrow(u'%s:"%s"' % (field, sqs.query.clean(value)))
+
         return sqs

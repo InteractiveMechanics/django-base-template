@@ -1,14 +1,18 @@
 """urlconf for the base application"""
 
 from django.conf.urls import url, patterns, include
-from forms import AdvancedSearchForm
-from haystack.views import SearchView, search_view_factory
+from forms import AdvancedSearchForm, AdvFacetedSearchForm
+from haystack.views import SearchView, search_view_factory, FacetedSearchView
+from haystack.query import SearchQuerySet
+
+sqs = SearchQuerySet().facet('prop_19_exact')
 
 urlpatterns = patterns('base.views',
     url(r'^$', 'home', name='home'),
     url(r'^map/', 'map', name='map'),
-    url(r'^search/', search_view_factory(
-        form_class = AdvancedSearchForm
+    url(r'^search/', FacetedSearchView(
+        form_class = AdvFacetedSearchForm,
+        searchqueryset = sqs
     ), name='haystack_search'),
     # ex: /ur.iaas.upenn.edu/subject/5/
     url(r'^subject/(?P<subject_id>\d+)/$', 'subjectdetail', name='subjectdetail'),

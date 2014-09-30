@@ -38,11 +38,29 @@ class MediaType(models.Model):
 
 """Types of descriptive properties (or variables to describe objects)"""
 class DescriptiveProperty(models.Model):
+    SUBJECT_OBJECT = 'SO'
+    SUBJECT_LOC = 'SL'
+    MEDIA_PUB = 'MP'
+    MEDIA_FILE = 'MF'
+    PERSON_ORGANIZATION = 'PO'
+    ALL = 'AL'
+    TYPE = (
+        (SUBJECT_OBJECT, 'Object'),
+        (SUBJECT_LOC, 'Location'),
+        (MEDIA_PUB, 'Publication'),
+        (MEDIA_FILE, 'File'),
+        (PERSON_ORGANIZATION, 'Person/Organization'),
+        (ALL, 'All'),
+    )
+
     property = models.CharField(max_length = 60)
     notes = models.TextField(blank = True)
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
-    last_mod_by = models.ForeignKey(User)    
+    last_mod_by = models.ForeignKey(User)
+    primary_type = models.CharField(max_length=2, choices=TYPE, default=ALL, blank = True)
+    order = models.IntegerField(blank = True, default=99)
+    visible = models.BooleanField(default = False)
 
     def __unicode__(self):
         return self.property
@@ -50,6 +68,7 @@ class DescriptiveProperty(models.Model):
     class Meta:
         verbose_name = 'Descriptive Property'
         verbose_name_plural = 'Descriptive Properties'
+        ordering = ['order']
 
 """Descriptive properties used for displaying search results"""
 class ResultProperty(models.Model):
@@ -84,6 +103,7 @@ class Media(models.Model):
     created = models.DateTimeField(auto_now = False, auto_now_add = True)
     modified = models.DateTimeField(auto_now = True, auto_now_add = False)
     last_mod_by = models.ForeignKey(User)
+    type = models.ForeignKey(MediaType, blank = True, null = True)
 
     class Meta:
         verbose_name_plural = 'media'

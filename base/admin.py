@@ -28,7 +28,13 @@ class SubjectPropertyInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
     }
+    ordering = ('property__order',)
     
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'property':
+            kwargs["queryset"] = DescriptiveProperty.objects.filter(Q(primary_type='SO') | Q(primary_type='AL'))
+        return super(SubjectPropertyInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        
 class MediaSubjectRelationsInline(admin.TabularInline):
     model = MediaSubjectRelations
     fields = ['media', 'relation_type', 'notes', 'last_mod_by']
@@ -36,6 +42,15 @@ class MediaSubjectRelationsInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
     }
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'media':
+            kwargs["queryset"] = Media.objects.filter(type__type = 'publication')
+        return super(MediaSubjectRelationsInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        
+    def get_queryset(self, request):
+        qs = super(MediaSubjectRelationsInline, self).get_queryset(request)
+        return qs.filter(relation_type=2)
 
 class SubjectAdmin(admin.ModelAdmin):
     fields = ['title', 'notes', 'last_mod_by']
@@ -172,13 +187,38 @@ admin.site.register(Subject, SubjectAdmin)
 
 class MediaPropertyInline(admin.TabularInline):
     model = MediaProperty
-    extra = 3
-    fields = ['property', 'property_value', 'last_mod_by']
+    fields = ['property', 'property_value', 'notes', 'last_mod_by']
+    readonly_fields = ('last_mod_by',)    
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "property":
+            kwargs["queryset"] = DescriptiveProperty.objects.filter(Q(primary_type='MP') | Q(primary_type='AL'))
+        return super(MediaPropertyInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class MediaAdmin(admin.ModelAdmin):
-    fields = ['title', 'notes', 'last_mod_by']
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['title', 'type', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['title', 'type', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
     inlines = [MediaPropertyInline]
-    search_fields = ['title']
+    search_fields = ['title', 'notes']
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+        
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            if isinstance(instance, MediaProperty) : #Check if it is the correct type of inline
+                instance.last_mod_by = request.user            
+                instance.save()
     
 admin.site.register(Media, MediaAdmin)
 
@@ -196,7 +236,23 @@ admin.site.register(PersonOrg, PersonOrgAdmin)
 
 admin.site.register(GlobalVars)
 admin.site.register(MediaType)
-admin.site.register(DescriptiveProperty)
+
+class DescriptivePropertyAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['property', 'primary_type', 'order', 'visible', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['property', 'primary_type', 'order', 'visible', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
+    search_fields = ['property']
+    list_filter = ('primary_type', 'visible')
+    list_editable = ('primary_type', 'order', 'visible', 'notes')
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+
+admin.site.register(DescriptiveProperty, DescriptivePropertyAdmin)
 admin.site.register(MediaProperty)
 admin.site.register(FeaturedImgs)
 

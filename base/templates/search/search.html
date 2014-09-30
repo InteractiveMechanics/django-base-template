@@ -71,24 +71,61 @@
         </div>
       </div>
     </div> <!-- End Advanced Search Box -->
-    
-    {% if query or page.object_list %}
-    <h2 style="text-align:center">Results</h2>
-    
-      {% for result in page.object_list %}
-        {% include 'search/_result_object.html' %}
-      {% empty %}
-        <p>No results found.</p>
-      {% endfor %}
 
-      {% if page.has_previous or page.has_next %}
-        <div>
-          {% if page.has_previous %}<a href="?{{ request.GET.urlencode }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-          |
-          {% if page.has_next %}<a href="?{{ request.GET.urlencode }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+    {% if query or page.object_list %}
+    <div class="content-section-b">
+      <div class="container">
+        <div class="row">
+      
+          <!-- Facets Column -->
+          <div class="col-md-4">
+            <div class="well">
+
+              <!-- Begin faceting -->
+              <h4>By Object Type</h4>
+              <div>
+                  <dl>
+                      {% if facets.fields.prop_19_exact %}
+                          {% for prop in facets.fields.prop_19_exact %}
+                              {% if prop.1 > 0 %}
+                                  <dd><a href="{{ request.get_full_path }}&amp;selected_facets=prop_19_exact:{{ prop.0|urlencode }}">{{ prop.0 }}</a> ({{ prop.1 }})</dd>
+                              {% endif %}
+                          {% endfor %}
+                      {% else %}
+                          <p>No object type facets.</p>
+                      {% endif %}
+                  </dl>
+              </div>
+              <!-- End faceting -->    
+          
+            </div>  
+          </div>
+          <!-- End Facets Column -->
+        
+          <!-- Results Column -->
+          <div class="col-md-8">
+            <h2 style="text-align:center">Results</h2>
+            
+              {% for result in page.object_list %}
+                {% include 'search/_result_object.html' %}
+              {% empty %}
+                <p>No results found.</p>
+              {% endfor %}
+
+              {% if page.has_previous or page.has_next %}
+                <div>
+                  {% if page.has_previous %}<a href="?{{ request.GET.urlencode }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                  |
+                  {% if page.has_next %}<a href="?{{ request.GET.urlencode }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+                </div>
+              {% endif %}
+          </div>
+        <!-- End Results Column -->
+      
         </div>
-      {% endif %}
-    
+      </div>
+    </div>
+
     {% else %}
       {# Show some example queries to run, maybe query syntax, something else? #}
     {% endif %}

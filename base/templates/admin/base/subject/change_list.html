@@ -73,6 +73,7 @@
     var query3 = document.getElementById('val_box3');
     var fake_button = document.getElementById('fake_search');
     var true_button = document.getElementById('true_search');
+    var clear_button = document.getElementById('clear_search');
     var search_box = document.getElementById('searchbar');
     
     if ("{% get_params_list cl.query 0 %}" != "") {
@@ -114,6 +115,21 @@
       var q3 = '___' + query3.value + '???';
       search_box.value = p1 + t1 + q1 + o1 + p2 + t2 + q2 + o2 + p3 + t3 + q3;
       true_button.click();
+    }
+    
+    clear_button.onclick = function() {
+        search_box.value = '';
+        prop1.selectedIndex = 0;
+        type1.selectedIndex = 0;
+        query1.value = '';
+        op1.selectedIndex = 0;
+        prop2.selectedIndex = 0;
+        type2.selectedIndex = 0;
+        query2.value = '';
+        op2.selectedIndex = 0;
+        prop3.selectedIndex = 0;
+        type3.selectedIndex = 0;
+        query3.value = '';
     }
   })
 })(django.jQuery);

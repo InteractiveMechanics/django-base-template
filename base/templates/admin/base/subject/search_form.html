@@ -25,6 +25,7 @@
         
         <input id="fake_search" class="btn btn-info" type="button" value="{% trans 'Search' %}" />
         <input id="true_search" style="visibility:hidden;" type="submit" value="{% trans 'Search' %}" class="btn btn-info"/>
+        <input id="clear_search" class="btn btn-info" type="button" value="Clear" />
         &nbsp;
         {% if show_result_count %}
           <span class="small quiet result-count">{% blocktrans count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %}

@@ -1,11 +1,12 @@
 from django import template
 from django.core.urlresolvers import reverse
-from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject
+from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject, SubjectProperty
 from django.contrib.admin.templatetags.admin_list import result_list
 from django.db.models import Q
 import re
 from django.contrib.admin.views.main import (ALL_VAR, EMPTY_CHANGELIST_VALUE,
     ORDER_VAR, PAGE_VAR, SEARCH_VAR)
+from ordereddict import OrderedDict
 
 register = template.Library()
 
@@ -37,21 +38,28 @@ def load_result_display_fields(fields, key):
             title_str = key + str(i + 1)
             title = ResultProperty.objects.get(display_field = title_str)
             if title.field_type:
-                p = 'prop_' + str(title.field_type.id)
+                p = title.field_type.id
                 property_name = title.field_type.property
-                value = fields.get(p, '')
-                if value != '' :
-                    prop_list.append(property_name + ' : ' + str(fields.get(p, '')))
+                id = fields.get('id')
+                id = id[13:]
+                value = SubjectProperty.objects.filter(property_id=p, subject_id=id)
+                for i, v in enumerate(value):
+                    if i > 0:
+                        prop_list.append(property_name + ' : ' + v.property_value + '; ')
+                    else: 
+                        prop_list.append(property_name + ' : ' + v.property_value)
     else:
         prop = ResultProperty.objects.get(display_field = key)
         if prop.field_type:
             prop_id = prop.field_type.id
-            p = 'prop_' + str(prop_id)
-            try:
-                prop_list.append(fields.get(p, ''))
-            except TypeError:
-                prop_list.append(str(fields.get(p, '')))
-    
+            id = fields.get('id')
+            id = id[13:]
+            value = SubjectProperty.objects.filter(property_id=prop_id, subject_id=id)
+            for i, v in enumerate(value):
+                if i > 0:
+                    prop_list.append(v.property_value + '; ')
+                else:
+                    prop_list.append(v.property_value)
     prop_str = ''
     
     for p in prop_list:
@@ -75,20 +83,37 @@ def get_query_params(request):
 @register.simple_tag    
 def get_result_details(fields):
     rowhtml = ''
+    
+    row_dict = {}
 
     for field, value in fields.items():
-        if field.startswith('prop_'):
-            prop_num = field[5:]
+        if field.startswith('prop_') and not field.endswith('_exact'):
+            prop_num = field[5:]            
             try:
                 prop = DescriptiveProperty.objects.get(id=prop_num)
+                prop_order = prop.order
                 try:
                     row = '<tr><td>' + prop.property + '</td><td>' + value + '</td></tr>'
                 except TypeError:
-                    row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'              
-                rowhtml += row
+                    row = '<tr><td>' + prop.property + '</td><td>' + str(value) + '</td></tr>'
+                
+                #sloppy way of handling properties with same order number
+                success = False
+                while not success:
+                    if prop_order in row_dict:
+                        prop_order += 1
+                    else:
+                        success = True
+                row_dict[prop_order] = row
+                
             except DescriptiveProperty.DoesNotExist:
-                pass
-            
+                continue
+
+    ordered_dict = OrderedDict(sorted(row_dict.items()))
+    
+    for k, v in ordered_dict.iteritems():
+        rowhtml += v
+    
     return rowhtml
     
 @register.simple_tag    
@@ -117,7 +142,7 @@ def get_img_thumb_po(object):
     
 @register.simple_tag
 def get_properties_dropdown():
-    props = DescriptiveProperty.objects.all()
+    props = DescriptiveProperty.objects.filter(Q(primary_type='SO') | Q(primary_type='AL')).order_by('order')
     options = '<option value="0">Any</option>'
     for prop in props:
         option = '<option value="' + str(prop.id) + '">' + prop.property + '</option>'
