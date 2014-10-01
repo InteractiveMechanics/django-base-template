@@ -174,7 +174,10 @@ class Subject(models.Model):
         return ''
     
     def id1(self):
-        return self.admin_column('subj_title1')
+        vals = self.admin_column('subj_title1')
+        if vals == '':
+            return '(none)'
+        return vals
     id1.short_description = admin_column_name('subj_title1')
     def id2(self):
         return self.admin_column('subj_title2')

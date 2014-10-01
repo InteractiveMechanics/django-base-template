@@ -118,13 +118,14 @@ def get_result_details(fields):
     
 @register.simple_tag    
 def get_img_thumb(object):
-    relation = MediaSubjectRelations.objects.filter(subject = object.id)
+    relation = MediaSubjectRelations.objects.filter(subject = object.id, relation_type = 3)
     
     if relation:
         first_rel = relation[0]
-        uri_prop = first_rel.media.mediaproperty_set.filter(property__property = 'URI')
-        if uri_prop:
-            return uri_prop[0].property_value
+        rs_ids = first_rel.media.mediaproperty_set.filter(property__property = 'Resource Space ID')
+        if rs_ids:
+            rs_id = rs_ids[0].property_value
+            return 'http://ur.iaas.upenn.edu/resourcespace/plugins/ref_urls/file.php?ref=' + rs_id + '&size=thm'
     
     return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
     
