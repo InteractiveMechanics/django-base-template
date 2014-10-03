@@ -9,7 +9,7 @@
       <span class="badge">Media</span>
       <div class="row">
         <div class="col-md-3">
-          <img src="{% static 'img/no_img.jpg' %}" style="display: inline; margin: 0 5px;"></img>        
+          <img src="{% get_img_thumb obj 'mm' %}" style="display: inline; margin: 0 5px;"></img>        
         </div>
         <div class="col-md-9">
           <h4 class="list-group-item-heading">
@@ -32,7 +32,7 @@
       <span class="badge">Subject</span>
       <div class="row">
         <div class="col-md-3">
-          <img src="{% get_img_thumb obj %}" style="display: inline; margin: 0 5px;"></img>        
+          <img src="{% get_img_thumb obj 'ms' %}" style="display: inline; margin: 0 5px;"></img>        
         </div>
         <div class="col-md-9">
           <h4 class="list-group-item-heading">
@@ -55,7 +55,7 @@
       <span class="badge">Person/Organization</span>
       <div class="row">
         <div class="col-md-3">
-          <img src="{% get_img_thumb_po obj %}" style="display: inline; margin: 0 5px;"></img>        
+          <img src="{% get_img_thumb obj 'mpo' %}" style="display: inline; margin: 0 5px;"></img>        
         </div>
         <div class="col-md-9">
           <h4 class="list-group-item-heading">

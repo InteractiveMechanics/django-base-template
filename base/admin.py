@@ -29,6 +29,7 @@ class SubjectPropertyInline(admin.TabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
     }
     ordering = ('property__order',)
+    suit_classes = 'suit-tab suit-tab-general'
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'property':
@@ -42,6 +43,7 @@ class MediaSubjectRelationsInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
     }
+    suit_classes = 'suit-tab suit-tab-general'    
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'media':
@@ -51,16 +53,36 @@ class MediaSubjectRelationsInline(admin.TabularInline):
     def get_queryset(self, request):
         qs = super(MediaSubjectRelationsInline, self).get_queryset(request)
         return qs.filter(relation_type=2)
-
+        
+class FileInline(admin.TabularInline):
+    model = File
+    fields = ['get_thumbnail', 'media', 'relation_type', 'notes', 'last_mod_by']
+    readonly_fields = ('get_thumbnail', 'last_mod_by',)        
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
+    suit_classes = 'suit-tab suit-tab-files'    
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'media':
+            kwargs["queryset"] = Media.objects.filter(type__type = 'image/jpeg')
+        return super(FileInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        
 class SubjectAdmin(admin.ModelAdmin):
-    fields = ['title', 'notes', 'last_mod_by']
     readonly_fields = ('last_mod_by',)    
-    inlines = [SubjectPropertyInline, MediaSubjectRelationsInline]
+    inlines = [SubjectPropertyInline, MediaSubjectRelationsInline, FileInline]
     search_fields = ['title']
     list_display = ('id1', 'id2', 'id3', 'desc1', 'desc2', 'desc3')
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
     }
+    suit_form_tabs = (('general', 'General'), ('files', 'Files'))
+    fieldsets = [
+        (None, {
+            'classes': ('suit-tab', 'suit-tab-general'),
+            'fields': ['title', 'notes', 'last_mod_by']
+        }),
+    ]
     
     change_list_template = 'admin/base/subject/change_list.html'
     change_form_template = 'admin/base/change_form.html'

@@ -73,7 +73,7 @@ class AdvancedSearchForm(SearchForm):
         
     def search(self):
     
-        sqs = super(AdvancedSearchForm, self).search()    
+        sqs = SearchQuerySet().facet('prop_19_exact')   
         
         if not self.is_valid():
             return self.no_query_found()
@@ -226,7 +226,7 @@ class AdvancedSearchForm(SearchForm):
                 else:
                     sq = SQ(**kwargs)                
 
-        sqs = sqs.filter_or(sq)                
+        sqs = sqs.filter(sq)                
  
         return sqs
         

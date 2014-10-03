@@ -366,3 +366,34 @@ class Status(models.Model):
     class Meta:
         verbose_name = 'Status'    
         verbose_name_plural = 'Status'
+        
+class PublicationManager(models.Manager):
+    def get_query_set(self):
+        return super(PublicationManager, self).get_query_set().filter(relation_type=2)
+        
+class Publication(MediaSubjectRelations):
+    objects = PublicationManager()
+    
+    class Meta:
+        proxy = True
+        
+class FileManager(models.Manager):
+    def get_query_set(self):
+        return super(FileManager, self).get_query_set().filter(relation_type=3)
+        
+class File(MediaSubjectRelations):
+    objects = FileManager()
+    
+    def get_thumbnail(self):
+        rs_ids = MediaProperty.objects.filter(media = self.media_id, property__property = 'Resource Space ID')
+        if rs_ids:
+            rs_id = rs_ids[0].property_value
+            url = 'http://ur.iaas.upenn.edu/resourcespace/plugins/ref_urls/file.php?ref=' + rs_id + '&size=thm'
+        else:
+            url = 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
+        return u'<img src="%s" />' % url        
+    get_thumbnail.short_description = 'Thumbnail'
+    get_thumbnail.allow_tags = True
+    
+    class Meta:
+        proxy = True

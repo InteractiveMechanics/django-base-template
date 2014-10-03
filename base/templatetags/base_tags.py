@@ -1,6 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject, SubjectProperty
+from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject, SubjectProperty, Media, MediaProperty
 from django.contrib.admin.templatetags.admin_list import result_list
 from django.db.models import Q
 import re
@@ -40,8 +40,9 @@ def load_result_display_fields(fields, key):
             if title.field_type:
                 p = title.field_type.id
                 property_name = title.field_type.property
-                id = fields.get('id')
-                id = id[13:]
+                long_id = fields.get('id')
+                id_group = long_id.split('.')
+                id = id_group[2]
                 value = SubjectProperty.objects.filter(property_id=p, subject_id=id)
                 for i, v in enumerate(value):
                     if i > 0:
@@ -52,8 +53,9 @@ def load_result_display_fields(fields, key):
         prop = ResultProperty.objects.get(display_field = key)
         if prop.field_type:
             prop_id = prop.field_type.id
-            id = fields.get('id')
-            id = id[13:]
+            long_id = fields.get('id')
+            id_group = long_id.split('.')
+            id = id_group[2]
             value = SubjectProperty.objects.filter(property_id=prop_id, subject_id=id)
             for i, v in enumerate(value):
                 if i > 0:
@@ -117,8 +119,18 @@ def get_result_details(fields):
     return rowhtml
     
 @register.simple_tag    
-def get_img_thumb(object):
-    relation = MediaSubjectRelations.objects.filter(subject = object.id, relation_type = 3)
+def get_img_thumb(object, type):
+    if type == 'ms':
+        relation = MediaSubjectRelations.objects.filter(subject = object.id, relation_type = 3)
+    elif type == 'mpo':
+        relation = MediaPersonOrgRelations.objects.filter(person_org = object.id, relation_type = 3)
+    else:
+        rs_ids = MediaProperty.objects.filter(media = object.id, property__property = 'Resource Space ID')
+        if rs_ids:
+            rs_id = rs_ids[0].property_value
+            return 'http://ur.iaas.upenn.edu/resourcespace/plugins/ref_urls/file.php?ref=' + rs_id + '&size=thm'
+        else:
+            return 'http://ur.iaas.upenn.edu/static/img/no_img.jpg'
     
     if relation:
         first_rel = relation[0]
@@ -212,6 +224,10 @@ def advanced_obj_search(search_term):
                     terms = terms[1:]
 
                 # CURRENT TERMS FORMAT: (PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
+                
+                #convert + from url into space in search keywords
+                if terms[2]:
+                    terms[2] = terms[2].replace('+', ' ')
                     
                 # remove and save the negation, if present
                 if terms[1].startswith('not'):

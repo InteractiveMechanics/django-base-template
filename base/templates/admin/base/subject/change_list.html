@@ -185,7 +185,7 @@
               </select>
             </div>
             <div class="span2">
-              <input type="text"  style="width:100%;" name="q1" id="val_box" value="{% get_params_list cl.query 2 %}" placeholder="Search Term"></input>
+              <input type="text"  style="width:100%;" name="q1" id="val_box" value="{% get_params_list cl.query 2 %}" placeholder="Search Term" onkeyup="if (event.keyCode == 13) document.getElementById('fake_search').click()"></input>
             </div>
           </div>
           <div class="row-fluid">
@@ -217,7 +217,7 @@
               </select>
             </div>
             <div class="span2">
-              <input type="text"  style="width:100%;" name="q1" id="val_box2" value="{% get_params_list cl.query 6 %}" placeholder="Search Term"></input>
+              <input type="text"  style="width:100%;" name="q1" id="val_box2" value="{% get_params_list cl.query 6 %}" placeholder="Search Term" onkeyup="if (event.keyCode == 13) document.getElementById('fake_search').click()"></input>
             </div>
           </div>
           <div class="row-fluid">
@@ -249,7 +249,7 @@
               </select>
             </div>
             <div class="span2">
-              <input type="text"  style="width:100%;" name="q1" id="val_box3" value="{% get_params_list cl.query 10 %}" placeholder="Search Term"></input>
+              <input type="text"  style="width:100%;" name="q1" id="val_box3" value="{% get_params_list cl.query 10 %}" placeholder="Search Term" onkeyup="if (event.keyCode == 13) document.getElementById('fake_search').click()"></input>
             </div>
           </div>
         </div>
