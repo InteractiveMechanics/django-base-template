@@ -326,6 +326,10 @@ class SubjectSubjectRelations(models.Model):
     def __unicode__(self):
         return self.subject1.title + ":" + self.subject2.title 
         
+    class Meta:
+        verbose_name = 'Object-Object Relation'
+        verbose_name_plural = 'Object-Object Relations'    
+        
 """Related media"""
 class MediaMediaRelations(models.Model):
     media1 = models.ForeignKey(Media, related_name='media1')
@@ -379,7 +383,7 @@ class Publication(MediaSubjectRelations):
         
 class FileManager(models.Manager):
     def get_query_set(self):
-        return super(FileManager, self).get_query_set().filter(relation_type=3)
+        return super(FileManager, self).get_query_set().filter(Q(relation_type=3) | Q(relation_type=1))
         
 class File(MediaSubjectRelations):
     objects = FileManager()

@@ -54,6 +54,16 @@ class MediaSubjectRelationsInline(admin.TabularInline):
         qs = super(MediaSubjectRelationsInline, self).get_queryset(request)
         return qs.filter(relation_type=2)
         
+class SubjectSubjectRelationsInline(admin.TabularInline):
+    model = SubjectSubjectRelations
+    fk_name = "subject1"
+    fields = ['subject2', 'relation_type', 'notes', 'last_mod_by']
+    readonly_fields = ('last_mod_by',)        
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':40})},
+    }
+    suit_classes = 'suit-tab suit-tab-general'    
+        
 class FileInline(admin.TabularInline):
     model = File
     fields = ['get_thumbnail', 'media', 'relation_type', 'notes', 'last_mod_by']
@@ -307,6 +317,20 @@ class MediaSubjectRelationsAdmin(admin.ModelAdmin):
         obj.save()
 
 admin.site.register(MediaSubjectRelations, MediaSubjectRelationsAdmin)
+
+class SubjectSubjectRelationsAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'modified', 'last_mod_by')
+    fields = ['subject1', 'subject2', 'relation_type', 'notes', 'created', 'modified', 'last_mod_by']
+    list_display = ['subject1', 'subject2', 'relation_type', 'notes', 'created', 'modified', 'last_mod_by']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2})},
+    }
+    
+    def save_model(self, request, obj, form, change):
+        obj.last_mod_by = request.user
+        obj.save()
+
+admin.site.register(SubjectSubjectRelations, SubjectSubjectRelationsAdmin)
 admin.site.register(MediaPersonOrgRelations)
 admin.site.register(PersonOrgProperty)
 

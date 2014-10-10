@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from base.models import GlobalVars, ResultProperty, DescriptiveProperty, MediaSubjectRelations, MediaPersonOrgRelations, Subject, SubjectProperty, Media, MediaProperty
 from django.contrib.admin.templatetags.admin_list import result_list
 from django.db.models import Q
-import re
+import re, urllib
 from django.contrib.admin.views.main import (ALL_VAR, EMPTY_CHANGELIST_VALUE,
     ORDER_VAR, PAGE_VAR, SEARCH_VAR)
 from ordereddict import OrderedDict
@@ -90,7 +90,19 @@ def get_result_details(fields):
 
     for field, value in fields.items():
         if field.startswith('prop_') and not field.endswith('_exact'):
-            prop_num = field[5:]            
+            prop_num = field[5:].strip()
+            
+            #sloppy (hopefully temporary) fix for Haystack auto-converting BM Reg #s to lists of ints
+            if prop_num == '33':
+                long_id = fields.get('id')
+                id_group = long_id.split('.')
+                id = id_group[2]
+                vals = SubjectProperty.objects.filter(property_id=prop_num, subject_id=id)
+                for i, v in enumerate(vals):
+                    if i > 0:
+                        value.append('; ' + v.property_value)
+                    else: 
+                        value = v.property_value                
             try:
                 prop = DescriptiveProperty.objects.get(id=prop_num)
                 prop_order = prop.order
@@ -121,9 +133,9 @@ def get_result_details(fields):
 @register.simple_tag    
 def get_img_thumb(object, type):
     if type == 'ms':
-        relation = MediaSubjectRelations.objects.filter(subject = object.id, relation_type = 3)
+        relation = MediaSubjectRelations.objects.filter(subject = object.id, relation_type = 1)
     elif type == 'mpo':
-        relation = MediaPersonOrgRelations.objects.filter(person_org = object.id, relation_type = 3)
+        relation = MediaPersonOrgRelations.objects.filter(person_org = object.id, relation_type = 1)
     else:
         rs_ids = MediaProperty.objects.filter(media = object.id, property__property = 'Resource Space ID')
         if rs_ids:
@@ -196,8 +208,9 @@ def load_last_query(query):
 def advanced_obj_search(search_term):
 
     cleaned_search_term = search_term[2:]
+    cleaned_search_term = urllib.unquote_plus(cleaned_search_term)
 
-    query_rows = cleaned_search_term.split('%3F%3F%3F') #list of queries from search_term
+    query_rows = cleaned_search_term.split('???') #list of queries from search_term
     
     queryset = Subject.objects.all()
 
@@ -219,15 +232,11 @@ def advanced_obj_search(search_term):
                 # CURRENT TERMS FORMAT: ([&AND/OR,] PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
             
                 # remove and save the operator, if present
-                if terms[0].startswith('%26'): 
+                if terms[0].startswith('&'): 
                     connector = terms[0][3:]
                     terms = terms[1:]
 
                 # CURRENT TERMS FORMAT: (PROPERTY, [not_]SEARCH_TYPE, [SEARCH_KEYWORDS])
-                
-                #convert + from url into space in search keywords
-                if terms[2]:
-                    terms[2] = terms[2].replace('+', ' ')
                     
                 # remove and save the negation, if present
                 if terms[1].startswith('not'):

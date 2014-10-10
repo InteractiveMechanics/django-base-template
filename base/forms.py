@@ -56,15 +56,15 @@ class PropertySelectorSearchForm(ModelSearchForm):
         return sqs
         
 class AdvancedSearchForm(SearchForm):
-    property = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    property = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.filter(visible=True), empty_label="Any")
     search_type = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
     q = forms.CharField(label='', required=False)
     op = forms.ChoiceField(label='', required=False, choices=OPERATOR)
-    property2 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    property2 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.filter(visible=True), empty_label="Any")
     search_type2 = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
     q2 = forms.CharField(label='', required=False)
     op2 = forms.ChoiceField(label='', required=False, choices=OPERATOR)
-    property3 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.all(), empty_label="Any")
+    property3 = forms.ModelChoiceField(label='', required=False, queryset=DescriptiveProperty.objects.filter(visible=True), empty_label="Any")
     search_type3 = forms.ChoiceField(label='', required=False, choices=SEARCH_TYPE)
     q3 = forms.CharField(label='', required=False)
     
