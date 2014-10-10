@@ -29,7 +29,7 @@
         </table>
       </div>
     {% elif obj.get_type == 'subject' %}
-      <span class="badge">Subject</span>
+      <a href="{% url 'subjectdetail' obj.id %}" role="button" class="btn btn-default btn-xs" style="float: right;">View Details</a>
       <div class="row">
         <div class="col-md-3">
           <img src="{% get_img_thumb obj 'ms' %}" style="display: inline; margin: 0 5px;"></img>        
